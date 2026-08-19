@@ -14,136 +14,277 @@ struct Buffer {
 };
 
 struct Buffer b[3] = {
-    {101, 1},    // EMI
-    {102, 1},    // Withdrawal
-    {103, 0}     // Deposit
+    {101, 1},       /* B0 - EMI        - BUSY */
+    {102, 1},       /* B1 - Withdrawal - BUSY */
+    {103, 0}        /* B2 - Deposit    - FREE */
 };
 
+
+/* Display buffer block list and free list */
 void display()
 {
-    printf("\n--- BUFFER LIST ---\n");
-    printf("B0 -> Block 101 -> BUSY\n");
-    printf("B1 -> Block 102 -> BUSY\n");
-    printf("B2 -> Block 103 -> FREE\n");
+    printf("\n====================================");
+    printf("\n       BUFFER BLOCK LIST");
+    printf("\n====================================\n");
 
-    printf("\n--- FREE LIST ---\n");
+    printf("B0 -> Block 101 -> EMI        -> BUSY\n");
+    printf("B1 -> Block 102 -> Withdrawal -> BUSY\n");
+    printf("B2 -> Block 103 -> Deposit    -> FREE\n");
+
+    printf("\nFREE LIST:\n");
     printf("B2 -> NULL\n");
 }
 
+
+/* Scenario 5 */
+void scenario5()
+{
+    printf("\n[SCENARIO 5]");
+    printf("\nRequested buffer is BUSY.");
+    printf("\nProcess cannot use the buffer.");
+    printf("\nProcess goes to SLEEP mode...\n");
+}
+
+
+/* Scenario 4 */
+void scenario4()
+{
+    printf("\n[SCENARIO 4]");
+    printf("\nFree list is EMPTY.");
+    printf("\nProcess cannot get a free buffer.");
+    printf("\nProcess goes to SLEEP mode...\n");
+}
+
+
+/* EMI process */
 void emi(struct Bank *bank, int fd)
 {
-    int x;
+    int msg;
 
-    printf("\n[EMI] PID = %d", getpid());
-    printf("\nScenario 5: EMI buffer is busy.");
-    printf("\nEMI goes to sleep...\n");
+    printf("\n------------------------------------");
+    printf("\n       EMI PROCESS");
+    printf("\n------------------------------------");
+    printf("\nPID: %d", getpid());
+    printf("\nRequested Buffer: B0");
+    printf("\nBlock Number: 101");
 
-    read(fd, &x, sizeof(x));
+    scenario5();
 
-    printf("[EMI] Woke up after deposit.");
-    printf("\n[EMI] Reads balance = %d\n", bank->balance);
+    printf("[EMI] Waiting for Deposit process...\n");
+
+    /* Receive IPC message */
+    read(fd, &msg, sizeof(msg));
+
+    printf("\n[IPC] Deposit -> EMI : Deposit completed.");
+    printf("\n[IPC] EMI received message.\n");
+
+    printf("\n[EMI] WOKE UP.");
+    printf("\n[EMI] Enters race condition.");
+    printf("\n[EMI] Reads balance = Rs.%d\n", bank->balance);
 
     sleep(1);
 
     if (bank->balance >= 500) {
         bank->balance -= 500;
-        printf("[EMI] EMI of Rs.500 paid.\n");
+
+        printf("[EMI] EMI of Rs.500 paid.");
+        printf("\n[EMI] New balance = Rs.%d\n", bank->balance);
     } else {
         printf("[EMI] Insufficient balance.\n");
     }
 
+    close(fd);
     exit(0);
 }
 
+
+/* Withdrawal process */
 void withdrawal(struct Bank *bank, int fd)
 {
-    int x;
+    int msg;
 
-    printf("\n[WITHDRAWAL] PID = %d", getpid());
-    printf("\nScenario 4: Free list unavailable.");
-    printf("\nWithdrawal goes to sleep...\n");
+    printf("\n------------------------------------");
+    printf("\n       WITHDRAWAL PROCESS");
+    printf("\n------------------------------------");
+    printf("\nPID: %d", getpid());
+    printf("\nRequested Buffer: B1");
+    printf("\nBlock Number: 102");
 
-    read(fd, &x, sizeof(x));
+    scenario4();
 
-    printf("[WITHDRAWAL] Woke up after deposit.");
-    printf("\n[WITHDRAWAL] Reads balance = %d\n", bank->balance);
+    printf("[WITHDRAWAL] Waiting for Deposit process...\n");
+
+    /* Receive IPC message */
+    read(fd, &msg, sizeof(msg));
+
+    printf("\n[IPC] Deposit -> Withdrawal : Deposit completed.");
+    printf("\n[IPC] Withdrawal received message.\n");
+
+    printf("\n[WITHDRAWAL] WOKE UP.");
+    printf("\n[WITHDRAWAL] Enters race condition.");
+    printf("\n[WITHDRAWAL] Reads balance = Rs.%d\n",
+           bank->balance);
 
     sleep(1);
 
     if (bank->balance >= 700) {
         bank->balance -= 700;
-        printf("[WITHDRAWAL] Rs.700 withdrawn.\n");
+
+        printf("[WITHDRAWAL] Rs.700 withdrawn.");
+        printf("\n[WITHDRAWAL] New balance = Rs.%d\n",
+               bank->balance);
     } else {
         printf("[WITHDRAWAL] Insufficient balance.\n");
     }
 
+    close(fd);
     exit(0);
 }
 
-void deposit(struct Bank *bank, int fd1, int fd2)
-{
-    int x = 1;
 
-    printf("\n[DEPOSIT] PID = %d", getpid());
-    printf("\nScenario 2: Free buffer B2 allocated.\n");
+/* Deposit process */
+void deposit(struct Bank *bank, int emiPipe, int withdrawPipe)
+{
+    int msg = 1;
+
+    printf("\n------------------------------------");
+    printf("\n       DEPOSIT PROCESS");
+    printf("\n------------------------------------");
+    printf("\nPID: %d", getpid());
+    printf("\nRequested Buffer: B2");
+    printf("\nBlock Number: 103");
+
+    printf("\n\n[DEPOSIT] B2 is FREE.");
+    printf("\n[DEPOSIT] Free buffer allocated.");
+    printf("\n[DEPOSIT] Depositing Rs.1000...\n");
+
+    sleep(1);
 
     bank->balance += 1000;
 
-    printf("[DEPOSIT] Rs.1000 deposited.\n");
-    printf("[DEPOSIT] New balance = %d\n", bank->balance);
+    printf("[DEPOSIT] Deposit completed.");
+    printf("\n[DEPOSIT] New balance = Rs.%d\n",
+           bank->balance);
 
-    write(fd1, &x, sizeof(x));
-    write(fd2, &x, sizeof(x));
+    /* IPC through pipes */
+    write(emiPipe, &msg, sizeof(msg));
+    printf("\n[IPC] Deposit -> EMI");
+    printf("\n[IPC] Message sent: Deposit completed.");
 
-    printf("[DEPOSIT] EMI and Withdrawal are awakened.\n");
+    write(withdrawPipe, &msg, sizeof(msg));
+    printf("\n[IPC] Deposit -> Withdrawal");
+    printf("\n[IPC] Message sent: Deposit completed.\n");
+
+    close(emiPipe);
+    close(withdrawPipe);
 
     exit(0);
 }
+
 
 int main()
 {
     struct Bank *bank;
+
     int p1[2], p2[2];
-    pid_t e, w, d;
 
-    bank = mmap(NULL, sizeof(struct Bank),
+    pid_t emiPID, withdrawPID, depositPID;
+
+    /* Create shared memory */
+    bank = mmap(NULL,
+                sizeof(struct Bank),
                 PROT_READ | PROT_WRITE,
-                MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+                MAP_SHARED | MAP_ANONYMOUS,
+                -1, 0);
 
+    if (bank == MAP_FAILED) {
+        perror("mmap");
+        exit(1);
+    }
+
+    /* Initial balance */
     bank->balance = 1000;
 
+    /* Create pipes */
     pipe(p1);
     pipe(p2);
 
-    printf("Initial Balance = Rs.%d\n", bank->balance);
+    printf("\n============================================");
+    printf("\n       BANKING TRANSACTION SYSTEM");
+    printf("\n       getblk() Scenario 4 & 5");
+    printf("\n============================================\n");
+
+    printf("\nInitial Bank Balance = Rs.%d\n",
+           bank->balance);
 
     display();
 
-    e = fork();
+    printf("\n============================================");
+    printf("\nCreating EMI, Withdrawal and Deposit");
+    printf(" processes...");
+    printf("\n============================================\n");
 
-    if (e == 0) {
+
+    /* Create EMI process */
+    emiPID = fork();
+
+    if (emiPID == 0) {
         close(p1[1]);
+        close(p2[0]);
+        close(p2[1]);
+
         emi(bank, p1[0]);
     }
 
-    w = fork();
 
-    if (w == 0) {
+    /* Create Withdrawal process */
+    withdrawPID = fork();
+
+    if (withdrawPID == 0) {
         close(p2[1]);
+        close(p1[0]);
+        close(p1[1]);
+
         withdrawal(bank, p2[0]);
     }
 
-    d = fork();
 
-    if (d == 0) {
+    /* Create Deposit process */
+    depositPID = fork();
+
+    if (depositPID == 0) {
+        close(p1[0]);
+        close(p2[0]);
+
         deposit(bank, p1[1], p2[1]);
     }
 
+
+    /* Parent closes all pipe ends */
+    close(p1[0]);
+    close(p1[1]);
+    close(p2[0]);
+    close(p2[1]);
+
+
+    /* Wait for all processes */
     wait(NULL);
     wait(NULL);
     wait(NULL);
 
-    printf("\nFinal Balance = Rs.%d\n", bank->balance);
+    printf("\n\n============================================");
+    printf("\n          ALL PROCESSES COMPLETED");
+    printf("\n============================================");
+
+    printf("\nFinal Shared Balance = Rs.%d\n",
+           bank->balance);
+
+    printf("\nIPC used:");
+    printf("\n1. pipe()  -> Communication between processes");
+    printf("\n2. mmap()  -> Shared bank balance");
+    printf("\n3. fork()  -> Creation of processes");
+    printf("\n4. wait()  -> Parent waits for children");
+    printf("\n5. sleep() -> Simulates sleeping processes\n");
 
     munmap(bank, sizeof(struct Bank));
 
