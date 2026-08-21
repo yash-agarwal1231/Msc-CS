@@ -1,3 +1,5 @@
+import scala.io.StdIn.readInt
+
 object Q2_SumOfPrimes {
   def main(args: Array[String]): Unit = {
 
