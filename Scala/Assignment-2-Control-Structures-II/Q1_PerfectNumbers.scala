@@ -1,11 +1,13 @@
-import scala.util.Random
+import scala.io.StdIn.readInt
 
-object Q1_PerfectNumbers {
+object PerfectNumbers {
   def main(args: Array[String]): Unit = {
 
     for (i <- 1 to 5) {
 
-      val n = Random.nextInt(100) + 1
+      print(s"Enter number $i: ")
+      val n = scala.io.StdIn.readInt()
+
       var sum = 0
 
       for (j <- 1 until n) {
