@@ -1,0 +1,226 @@
+ASSIGNMENT 2 – FILE AND DIRECTORY I/O
+Simple C Programs
+
+========================================
+Q1. CREATE A FILE WITH A HOLE IN IT
+========================================
+
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+int main()
+{
+    int fd;
+
+    fd = open("hole.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+
+    if (fd == -1)
+    {
+        printf("File cannot be opened\n");
+        return 1;
+    }
+
+    write(fd, "Hello", 5);
+
+    // Move file pointer forward by 5 bytes
+    lseek(fd, 5, SEEK_CUR);
+
+    write(fd, "World", 5);
+
+    close(fd);
+
+    printf("File created with a hole successfully.\n");
+
+    return 0;
+}
+
+
+Explanation:
+O_WRONLY = open for writing only.
+O_CREAT  = create the file if it does not exist.
+O_TRUNC  = remove old contents if the file already exists.
+lseek()  = moves the file pointer; here it creates a 5-byte hole.
+
+
+========================================
+Q2. OPEN A FILE AND SLEEP FOR 15 SECONDS
+========================================
+
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+int main()
+{
+    int fd;
+
+    fd = open("test.txt", O_RDONLY);
+
+    if (fd == -1)
+    {
+        printf("File cannot be opened\n");
+        return 1;
+    }
+
+    printf("File opened successfully.\n");
+    printf("Process is sleeping for 15 seconds...\n");
+
+    sleep(15);
+
+    printf("15 seconds completed.\n");
+
+    close(fd);
+
+    printf("File closed. Program terminated.\n");
+
+    return 0;
+}
+
+
+Explanation:
+open()    = opens the file and returns a file descriptor.
+O_RDONLY  = opens the file for reading only.
+sleep(15) = pauses the program for 15 seconds.
+close()   = closes the file.
+
+
+========================================
+Q3. READ CURRENT DIRECTORY AND DISPLAY
+    FILE NAME, SIZE, TYPE AND COUNT
+========================================
+
+#include <stdio.h>
+#include <dirent.h>
+#include <sys/stat.h>
+
+int main()
+{
+    DIR *dir;
+    struct dirent *entry;
+    struct stat file;
+    int count = 0;
+
+    dir = opendir(".");
+
+    if (dir == NULL)
+    {
+        printf("Cannot open directory\n");
+        return 1;
+    }
+
+    printf("Name\t\tSize\tType\n");
+    printf("--------------------------------\n");
+
+    while ((entry = readdir(dir)) != NULL)
+    {
+        if (stat(entry->d_name, &file) == -1)
+            continue;
+
+        printf("%-15s %ld\t", entry->d_name, file.st_size);
+
+        if (S_ISREG(file.st_mode))
+            printf("Regular File");
+        else if (S_ISDIR(file.st_mode))
+            printf("Directory");
+        else
+            printf("Other");
+
+        printf("\n");
+
+        count++;
+    }
+
+    closedir(dir);
+
+    printf("\nTotal files: %d\n", count);
+
+    return 0;
+}
+
+
+Explanation:
+opendir(".") = opens the current directory.
+readdir()   = reads directory entries one by one.
+stat()      = gets information about each file.
+st_size     = gives the file size.
+S_ISREG()   = checks for a regular file.
+S_ISDIR()   = checks for a directory.
+closedir()  = closes the directory.
+count       = stores the number of directory entries.
+
+
+========================================
+IMPORTANT FILE OPEN FLAGS
+========================================
+
+O_RDONLY  = Read only
+O_WRONLY  = Write only
+O_RDWR    = Read and write
+O_CREAT   = Create file if it does not exist
+O_TRUNC   = Clear existing file contents
+O_APPEND  = Write data at the end of the file
+
+Example:
+open("file.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+
+Meaning:
+Open for writing + create if needed + clear old contents.
+
+
+========================================
+IMPORTANT FILE TYPE MACROS
+========================================
+
+S_ISREG()  = Regular file
+S_ISDIR()  = Directory
+S_ISCHR()  = Character special file
+S_ISBLK()  = Block special file
+S_ISFIFO() = FIFO / named pipe
+S_ISLNK()  = Symbolic link
+S_ISSOCK() = Socket
+
+
+========================================
+QUICK VIVA REVISION
+========================================
+
+Q: What is a file descriptor?
+A: A number returned by open() that identifies an open file.
+
+Q: What does O_WRONLY mean?
+A: Open the file for writing only.
+
+Q: What does O_CREAT mean?
+A: Create the file if it does not exist.
+
+Q: What does O_TRUNC mean?
+A: Remove the existing contents of the file.
+
+Q: What is lseek() used for?
+A: To move the file pointer to a specified position.
+
+Q: How is a hole created?
+A: By moving the file pointer forward using lseek() without writing data.
+
+Q: What does sleep(15) do?
+A: It pauses the process for 15 seconds.
+
+Q: What does opendir() do?
+A: It opens a directory for reading.
+
+Q: What does readdir() do?
+A: It reads entries from a directory.
+
+Q: What does stat() do?
+A: It gets information about a file.
+
+Q: What is S_ISDIR()?
+A: It checks whether a file is a directory.
+
+Q: What is S_ISREG()?
+A: It checks whether a file is a regular file.
+
+Q: What is st_mode?
+A: A field in the stat structure containing file type and permission information.
+
