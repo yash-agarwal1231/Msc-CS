@@ -1,0 +1,212 @@
+ASSIGNMENT 3
+PROCESS ENVIRONMENT & PROCESS CONTROL
+Minimum-LOC C Programs + 1-Line Explanations
+
+IMPORTANT:
+These programs are based on the Lab Assignments in the provided PDF.
+The system calls/functions are explained briefly after each relevant question.
+The code is kept short without removing any requirement from the question.
+
+============================================================
+Q1. Create N children and display cumulative user & kernel time
+============================================================
+
+Question:
+Write a program to create 'n' children. When the children terminate,
+display total cumulative time children spent in user and kernel mode.
+
+#include<stdio.h>
+#include<unistd.h>
+#include<sys/wait.h>
+#include<sys/resource.h>
+
+int main()
+{
+    int n,i;
+    struct rusage r;
+
+    printf("Enter number of children: ");
+    scanf("%d",&n);
+
+    for(i=0;i<n;i++)
+        if(fork()==0) return 0;
+
+    for(i=0;i<n;i++) wait(NULL);
+
+    getrusage(RUSAGE_CHILDREN,&r);
+
+    printf("User Time   : %ld.%06ld sec\n",r.ru_utime.tv_sec,r.ru_utime.tv_usec);
+    printf("Kernel Time : %ld.%06ld sec\n",r.ru_stime.tv_sec,r.ru_stime.tv_usec);
+
+    return 0;
+}
+
+1-LINE EXPLANATIONS:
+fork()        - Creates a new child process.
+wait()        - Makes the parent wait until a child terminates.
+getrusage()   - Gets resource usage information of the process/children.
+RUSAGE_CHILDREN - Specifies that resource usage of terminated children is required.
+ru_utime      - Gives the cumulative CPU time spent by children in user mode.
+ru_stime      - Gives the cumulative CPU time spent by children in kernel/system mode.
+scanf()       - Takes N, the number of children, as user input.
+
+IMPORTANT NOTE:
+The PDF asks for cumulative user and kernel time in Q1, but the provided
+PDF does not explicitly list getrusage(); it lists getrlimit(), which is
+a different function. getrusage() is used here because it provides the
+CPU-time values required by the question.
+
+============================================================
+Q2. Demonstrate atexit()
+============================================================
+
+Question:
+Write a program to demonstrate the use of atexit() function.
+
+#include<stdio.h>
+#include<stdlib.h>
+
+void fun()
+{
+    printf("atexit() function executed\n");
+}
+
+int main()
+{
+    atexit(fun);
+    printf("Inside main()\n");
+    return 0;
+}
+
+OUTPUT:
+Inside main()
+atexit() function executed
+
+1-LINE EXPLANATIONS:
+atexit()      - Registers a function that executes when the program terminates normally.
+fun()         - The function registered with atexit().
+return 0      - Normally terminates main(), causing the registered atexit() function to run.
+
+============================================================
+Q3. Two-way communication between parent and child using pipe
+============================================================
+
+Question:
+Write a program to handle the two-way communication between parent
+and child using pipe.
+
+#include<stdio.h>
+#include<unistd.h>
+#include<string.h>
+#include<sys/wait.h>
+
+int main()
+{
+    int p1[2],p2[2];
+    char msg[50];
+
+    pipe(p1);
+    pipe(p2);
+
+    if(fork()==0)
+    {
+        close(p1[1]);
+        close(p2[0]);
+
+        read(p1[0],msg,sizeof(msg));
+        printf("Child received: %s\n",msg);
+
+        write(p2[1],"Hello Parent",13);
+    }
+    else
+    {
+        close(p1[0]);
+        close(p2[1]);
+
+        write(p1[1],"Hello Child",12);
+
+        read(p2[0],msg,sizeof(msg));
+        printf("Parent received: %s\n",msg);
+
+        wait(NULL);
+    }
+
+    return 0;
+}
+
+OUTPUT:
+Child received: Hello Child
+Parent received: Hello Parent
+
+1-LINE EXPLANATIONS:
+pipe()        - Creates a pipe for communication between processes.
+fork()        - Creates the child process so parent and child can communicate.
+read()        - Reads data from the read end of a pipe.
+write()       - Writes data to the write end of a pipe.
+close()       - Closes an unused pipe end.
+wait()        - Makes the parent wait for the child to finish.
+p1            - First pipe used for Parent -> Child communication.
+p2            - Second pipe used for Child -> Parent communication.
+p[0]          - Read end of a pipe.
+p[1]          - Write end of a pipe.
+
+WHY TWO PIPES?
+One pipe provides one-way communication, so two pipes are used here
+to achieve two-way communication as required by the question.
+
+============================================================
+SYSTEM CALLS / FUNCTIONS GIVEN IN THE PDF
+============================================================
+
+fork()        - Creates a new process (child process).
+getpid()      - Returns the process ID of the calling process.
+atexit()      - Registers a function to execute at normal termination.
+getenv()      - Fetches the value of a specified environment variable.
+putenv()      - Adds or changes an environment variable using name=value.
+setenv()      - Sets an environment variable to a specified value.
+unsetenv()    - Removes an environment variable.
+getrlimit()   - Gets the resource limits of a process.
+wait()        - Suspends the calling process until a child terminates.
+exec()        - Replaces the current process image with a new program.
+execlp()      - Executes a program and searches for it using PATH.
+pipe()        - Creates a communication channel between processes.
+exit()        - Terminates a process.
+
+============================================================
+PDF TOPICS TO REMEMBER
+============================================================
+
+Process:
+A process is a program in execution.
+
+Process sections:
+Stack - Contains temporary data such as function parameters, return addresses and local variables.
+Heap  - Contains dynamically allocated memory.
+Text  - Contains the program instructions.
+Data  - Contains global and static variables.
+
+fork() return values:
+0        - Returned to the child.
+Positive - Child PID returned to the parent.
+Negative - Child creation failed.
+
+exec():
+The exec family replaces the current process image with a new program.
+The PID does not change because exec() does not create a new process.
+
+wait():
+The wait() system call suspends the calling process until one of its
+children terminates.
+
+============================================================
+PDF LAB ASSIGNMENTS
+============================================================
+
+1. Write a program to create ‘n’ children. When the children will terminate,
+   display total cumulative time children spent in user and kernel mode.
+
+2. Write a program to demonstrate the use of atexit() function.
+
+3. Write a program to handle the two-way communication between parent
+   and child using pipe.
+
