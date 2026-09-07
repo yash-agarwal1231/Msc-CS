@@ -1,11 +1,9 @@
 ASSIGNMENT 3
 PROCESS ENVIRONMENT & PROCESS CONTROL
-Minimum-LOC C Programs + 1-Line Explanations
 
 IMPORTANT:
 These programs are based on the Lab Assignments in the provided PDF.
 The system calls/functions are explained briefly after each relevant question.
-The code is kept short without removing any requirement from the question.
 
 ============================================================
 Q1. Create N children and display cumulative user & kernel time
@@ -197,16 +195,3 @@ The PID does not change because exec() does not create a new process.
 wait():
 The wait() system call suspends the calling process until one of its
 children terminates.
-
-============================================================
-PDF LAB ASSIGNMENTS
-============================================================
-
-1. Write a program to create ‘n’ children. When the children will terminate,
-   display total cumulative time children spent in user and kernel mode.
-
-2. Write a program to demonstrate the use of atexit() function.
-
-3. Write a program to handle the two-way communication between parent
-   and child using pipe.
-
