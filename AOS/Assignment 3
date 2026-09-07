@@ -1,10 +1,6 @@
 ASSIGNMENT 3
 PROCESS ENVIRONMENT & PROCESS CONTROL
 
-IMPORTANT:
-These programs are based on the Lab Assignments in the provided PDF.
-The system calls/functions are explained briefly after each relevant question.
-
 ============================================================
 Q1. Create N children and display cumulative user & kernel time
 ============================================================
