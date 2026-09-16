@@ -5,6 +5,7 @@ object Q2_TargetStringArray {
 
     print("Enter number of strings: ")
     val n = StdIn.readInt()
+    StdIn.readLine()  // consume leftover newline
 
     val arr = new Array[String](n)
 
