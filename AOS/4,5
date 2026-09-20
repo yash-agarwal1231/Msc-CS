@@ -1,0 +1,487 @@
+OPERATING SYSTEMS LAB
+ASSIGNMENT 4 & ASSIGNMENT 5
+C PROGRAM SOLUTIONS
+
+============================================================
+ASSIGNMENT 4 – MEMORY MANAGEMENT
+============================================================
+
+LAB ASSIGNMENT
+------------------------------------------------------------
+1. Write a C program that illustrates inter process communication
+   using shared memory.
+
+PROGRAM:
+------------------------------------------------------------
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <string.h>
+
+int main()
+{
+    int shmid;
+    char *shared_memory;
+
+    shmid = shmget(IPC_PRIVATE, 1024, IPC_CREAT | 0666);
+
+    if (shmid == -1)
+    {
+        perror("shmget");
+        exit(1);
+    }
+
+    shared_memory = (char *)shmat(shmid, NULL, 0);
+
+    if (shared_memory == (char *)-1)
+    {
+        perror("shmat");
+        exit(1);
+    }
+
+    if (fork() == 0)
+    {
+        printf("Child: Reading message from shared memory...\n");
+        printf("Child: %s\n", shared_memory);
+
+        shmdt(shared_memory);
+        exit(0);
+    }
+    else
+    {
+        strcpy(shared_memory, "Hello from Parent using Shared Memory!");
+
+        printf("Parent: Message written to shared memory.\n");
+
+        wait(NULL);
+
+        shmdt(shared_memory);
+        shmctl(shmid, IPC_RMID, NULL);
+    }
+
+    return 0;
+}
+
+EXPLANATION:
+- shmget() creates a shared memory segment.
+- shmat() attaches the shared memory to the process.
+- fork() creates a child process.
+- The parent writes a message into shared memory.
+- The child reads the same message from shared memory.
+- shmdt() detaches the shared memory.
+- shmctl() removes the shared memory segment.
+
+NOTE:
+The source assignment lists shmat and semop under the memory-management
+prerequisites, but the actual lab question specifically asks for IPC
+using shared memory. The above program demonstrates that requirement.
+
+
+EXTRA PRACTICE QUESTION
+------------------------------------------------------------
+2. Write a program that intentionally creates a memory leak and then
+   modify it to fix the leak.
+
+A) PROGRAM WITH MEMORY LEAK
+------------------------------------------------------------
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    int *ptr;
+
+    ptr = (int *)malloc(5 * sizeof(int));
+
+    if (ptr == NULL)
+    {
+        printf("Memory allocation failed.\n");
+        return 1;
+    }
+
+    for (int i = 0; i < 5; i++)
+    {
+        ptr[i] = i + 1;
+    }
+
+    printf("Memory allocated successfully.\n");
+
+    /* Memory is not released using free().
+       This creates a memory leak. */
+
+    return 0;
+}
+
+B) FIXED PROGRAM
+------------------------------------------------------------
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    int *ptr;
+
+    ptr = (int *)malloc(5 * sizeof(int));
+
+    if (ptr == NULL)
+    {
+        printf("Memory allocation failed.\n");
+        return 1;
+    }
+
+    for (int i = 0; i < 5; i++)
+    {
+        ptr[i] = i + 1;
+    }
+
+    printf("Memory allocated successfully.\n");
+
+    free(ptr);
+    ptr = NULL;
+
+    printf("Memory released successfully.\n");
+
+    return 0;
+}
+
+EXPLANATION:
+- malloc() dynamically allocates memory.
+- If allocated memory is not released, it becomes a memory leak.
+- free() releases dynamically allocated memory.
+- Setting the pointer to NULL after free() avoids accidentally using
+  the released memory through that pointer.
+
+
+============================================================
+ASSIGNMENT 5 – SIGNAL HANDLING
+============================================================
+
+LAB ASSIGNMENT 1
+------------------------------------------------------------
+Write a C program which creates a child process which catches a signal
+SIGHUP, SIGINT and SIGQUIT. The parent process sends a SIGHUP or SIGINT
+signal after every 3 seconds. At the end of 30 seconds parent sends
+SIGQUIT signal to child and child terminates by displaying:
+
+"My DADDY has Killed me!!!"
+
+PROGRAM:
+------------------------------------------------------------
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+void handle_signal(int sig)
+{
+    if (sig == SIGHUP)
+    {
+        printf("Child: SIGHUP received.\n");
+    }
+    else if (sig == SIGINT)
+    {
+        printf("Child: SIGINT received.\n");
+    }
+    else if (sig == SIGQUIT)
+    {
+        printf("My DADDY has Killed me!!!\n");
+        exit(0);
+    }
+}
+
+int main()
+{
+    pid_t pid;
+
+    pid = fork();
+
+    if (pid < 0)
+    {
+        perror("fork");
+        return 1;
+    }
+
+    if (pid == 0)
+    {
+        signal(SIGHUP, handle_signal);
+        signal(SIGINT, handle_signal);
+        signal(SIGQUIT, handle_signal);
+
+        printf("Child process started. PID = %d\n", getpid());
+
+        while (1)
+        {
+            pause();
+        }
+    }
+    else
+    {
+        int elapsed = 0;
+
+        printf("Parent process started. Child PID = %d\n", pid);
+
+        while (elapsed < 30)
+        {
+            sleep(3);
+            elapsed += 3;
+
+            if (elapsed < 30)
+            {
+                if ((elapsed / 3) % 2 == 1)
+                {
+                    printf("Parent: Sending SIGHUP to child.\n");
+                    kill(pid, SIGHUP);
+                }
+                else
+                {
+                    printf("Parent: Sending SIGINT to child.\n");
+                    kill(pid, SIGINT);
+                }
+            }
+        }
+
+        printf("Parent: 30 seconds completed. Sending SIGQUIT.\n");
+        kill(pid, SIGQUIT);
+
+        wait(NULL);
+
+        printf("Parent: Child process terminated.\n");
+    }
+
+    return 0;
+}
+
+EXPLANATION:
+- fork() creates the child process.
+- signal() associates a signal handler with SIGHUP, SIGINT and SIGQUIT.
+- The parent uses sleep(3) to wait for 3 seconds.
+- kill() sends the required signal to the child.
+- The child uses pause() to wait for a signal.
+- After 30 seconds, the parent sends SIGQUIT.
+- The SIGQUIT handler displays the required message and terminates
+  the child.
+
+
+LAB ASSIGNMENT 2
+------------------------------------------------------------
+Write a C program that illustrates suspending and resuming processes
+using signals.
+
+PROGRAM:
+------------------------------------------------------------
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+int main()
+{
+    pid_t pid;
+
+    pid = fork();
+
+    if (pid < 0)
+    {
+        perror("fork");
+        return 1;
+    }
+
+    if (pid == 0)
+    {
+        while (1)
+        {
+            printf("Child process is running...\n");
+            sleep(2);
+        }
+    }
+    else
+    {
+        sleep(5);
+
+        printf("Parent: Suspending child process.\n");
+        kill(pid, SIGSTOP);
+
+        sleep(5);
+
+        printf("Parent: Resuming child process.\n");
+        kill(pid, SIGCONT);
+
+        sleep(5);
+
+        printf("Parent: Terminating child process.\n");
+        kill(pid, SIGTERM);
+
+        wait(NULL);
+        printf("Parent: Child process terminated.\n");
+    }
+
+    return 0;
+}
+
+EXPLANATION:
+- SIGSTOP suspends the child process.
+- While suspended, the child does not execute its normal instructions.
+- SIGCONT resumes a stopped process.
+- SIGTERM requests termination of the child.
+- kill() is used by the parent to send these signals.
+
+
+EXTRA PRACTICE QUESTION 3
+------------------------------------------------------------
+Write a C program handling both SIGINT (triggered by pressing Ctrl+C)
+and SIGTERM (which can be sent to the process using the kill command)
+using signal handlers.
+
+PROGRAM:
+------------------------------------------------------------
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <signal.h>
+
+void handle_signal(int sig)
+{
+    if (sig == SIGINT)
+    {
+        printf("\nSIGINT received. Ctrl+C was pressed.\n");
+    }
+    else if (sig == SIGTERM)
+    {
+        printf("\nSIGTERM received. Process is terminating.\n");
+        exit(0);
+    }
+}
+
+int main()
+{
+    signal(SIGINT, handle_signal);
+    signal(SIGTERM, handle_signal);
+
+    printf("Process started. PID = %d\n", getpid());
+    printf("Press Ctrl+C to generate SIGINT.\n");
+    printf("Use 'kill -TERM %d' from another terminal to generate SIGTERM.\n",
+           getpid());
+
+    while (1)
+    {
+        printf("Process is running...\n");
+        sleep(2);
+    }
+
+    return 0;
+}
+
+EXPLANATION:
+- signal() registers the signal handler.
+- Pressing Ctrl+C normally generates SIGINT.
+- SIGTERM can be sent using the kill command.
+- SIGINT is handled without terminating the process in this program.
+- SIGTERM displays a message and terminates the process.
+
+
+============================================================
+IMPORTANT SYSTEM CALLS / FUNCTIONS USED
+============================================================
+
+1. malloc()
+   Dynamically allocates a block of memory.
+
+2. free()
+   Releases dynamically allocated memory.
+
+3. shmget()
+   Creates or obtains a System V shared memory segment.
+
+4. shmat()
+   Attaches a shared memory segment to the process address space.
+
+5. shmdt()
+   Detaches shared memory from the process.
+
+6. shmctl()
+   Performs control operations on shared memory, including removal.
+
+7. fork()
+   Creates a new child process.
+
+8. signal()
+   Registers a function to handle a signal.
+
+9. kill()
+   Sends a signal to a process.
+
+10. pause()
+    Suspends the calling process until a signal is received.
+
+11. sleep()
+    Suspends execution for a specified number of seconds.
+
+12. wait()
+    Makes the parent wait for a child process to finish.
+
+13. exit()
+    Terminates the current process.
+
+14. getpid()
+    Returns the process ID of the calling process.
+
+
+============================================================
+SIGNALS USED
+============================================================
+
+SIGHUP
+    Hangup signal.
+
+SIGINT
+    Interrupt signal, commonly generated using Ctrl+C.
+
+SIGQUIT
+    Quit signal.
+
+SIGSTOP
+    Stops/suspends a process.
+
+SIGCONT
+    Continues/resumes a stopped process.
+
+SIGTERM
+    Requests normal process termination.
+
+
+============================================================
+COMPILATION
+============================================================
+
+For Linux / Unix / WSL:
+
+gcc program.c -o program
+./program
+
+For the shared-memory program, if the system requires it, use:
+
+gcc program.c -o program
+
+Note:
+The shared-memory program uses wait(), so <sys/wait.h> should be
+included if compiling with stricter compiler settings.
+
+
+============================================================
+END OF ASSIGNMENT 4 & 5
+============================================================
+
