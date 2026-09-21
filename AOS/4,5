@@ -485,3 +485,82 @@ included if compiling with stricter compiler settings.
 END OF ASSIGNMENT 4 & 5
 ============================================================
 
+Assignment 5 Q1 Alternative:
+
+#include <stdio.h>
+#include <unistd.h>
+#include <signal.h>
+#include <sys/wait.h>
+
+void handler(int s)
+{
+    if (s == SIGQUIT)
+    {
+        printf("My DADDY has Killed me!!!\n");
+        _exit(0);
+    }
+    printf("Child: Signal %d received.\n", s);
+}
+
+int main()
+{
+    int i;
+    pid_t p = fork();
+
+    if (p == 0)
+    {
+        signal(SIGHUP, handler);
+        signal(SIGINT, handler);
+        signal(SIGQUIT, handler);
+
+        while (1)
+            pause();
+    }
+
+    for (i = 3; i < 30; i += 3)
+    {
+        sleep(3);
+        kill(p, (i / 3) % 2 ? SIGHUP : SIGINT);
+    }
+
+    sleep(3);
+    kill(p, SIGQUIT);
+    wait(NULL);
+
+    return 0;
+}
+
+Q2:
+
+#include <stdio.h>
+#include <unistd.h>
+#include <signal.h>
+#include <sys/wait.h>
+
+int main()
+{
+    pid_t p = fork();
+
+    if (p == 0)
+    {
+        while (1)
+        {
+            printf("Child is running...\n");
+            sleep(2);
+        }
+    }
+
+    sleep(5);
+    printf("Suspending child\n");
+    kill(p, SIGSTOP);
+
+    sleep(5);
+    printf("Resuming child\n");
+    kill(p, SIGCONT);
+
+    sleep(5);
+    kill(p, SIGTERM);
+    wait(NULL);
+
+    return 0;
+}
