@@ -1,0 +1,754 @@
+===========================================================
+ASSIGNMENT 4: CREATING A GRAPH DATABASE
+===========================================================
+
+-----------------------------------------------------------
+1. LIBRARY DATABASE
+-----------------------------------------------------------
+
+CREATE NODES:
+
+CREATE
+(b1:Book {
+    title: "Harry Potter",
+    tags: ["Fantasy", "Magic"],
+    status: "Issued",
+    condition: "New",
+    cost: 500,
+    type: "Novel"
+}),
+(b2:Book {
+    title: "The Alchemist",
+    tags: ["Adventure", "Life"],
+    status: "Library",
+    condition: "New",
+    cost: 350,
+    type: "Novel"
+}),
+(b3:Book {
+    title: "Wings of Fire",
+    tags: ["Biography", "Science"],
+    status: "Issued",
+    condition: "Old",
+    cost: 400,
+    type: "Biography"
+}),
+(p1:Person {name: "Rahul"}),
+(p2:Person {name: "Priya"}),
+(p3:Person {name: "Mr. Joshi"}),
+(a1:Person {name: "J.K. Rowling", city: "London"}),
+(a2:Person {name: "Aravind Adiga", city: "Pune"}),
+(pub1:Publisher {name: "Penguin Books", city: "Pune"}),
+(pub2:Publisher {name: "HarperCollins", city: "Mumbai"});
+
+
+CREATE RELATIONSHIPS:
+
+CREATE
+(b1)-[:PublishedBy]->(pub1),
+(b2)-[:PublishedBy]->(pub2),
+(b3)-[:PublishedBy]->(pub1),
+(b1)-[:IssuedBy {date: "2026-09-01"}]->(p1),
+(b3)-[:IssuedBy {date: "2026-09-05"}]->(p2),
+(b1)-[:ReturnedBy {date: "2026-09-15"}]->(p1),
+(b1)-[:ReviewedBy {rating: 5, comment: "Excellent"}]->(p2),
+(b2)-[:ReviewedBy {rating: 4, comment: "Good"}]->(p1),
+(b1)-[:Votes {rating: 5}]->(p1),
+(b2)-[:Votes {rating: 4}]->(p2),
+(b1)-[:TranslatedBy {language: "Hindi"}]->(p3);
+
+
+VISUALIZE:
+
+MATCH (n)-[r]->(m)
+RETURN n, r, m;
+
+
+NODE PROPERTIES:
+
+MATCH (n)
+RETURN n;
+
+
+NODE LABELS:
+
+MATCH (n)
+RETURN labels(n) AS Labels, n.name AS Name, n.title AS Title;
+
+
+RELATIONSHIPS WITH PROPERTIES:
+
+MATCH (a)-[r]->(b)
+RETURN a, r, b;
+
+
+-----------------------------------------------------------
+2. SONG DATABASE
+-----------------------------------------------------------
+
+CREATE NODES:
+
+CREATE
+(a1:Artist {name: "Arijit Singh"}),
+(a2:Artist {name: "Shreya Ghoshal"}),
+(s1:Song {name: "Tum Hi Ho", genre: "Romantic"}),
+(s2:Song {name: "Agar Tum Saath Ho", genre: "Romantic"}),
+(s3:Song {name: "Teri Ore", genre: "Romantic"}),
+(w1:Song_author {name: "Mithoon"}),
+(w2:Song_author {name: "Amit Trivedi"}),
+(st1:Recording_studio {name: "YRF Studio"}),
+(st2:Recording_studio {name: "Soundideaz"}),
+(c1:Recording_company {name: "T-Series"}),
+(c2:Recording_company {name: "Sony Music"});
+
+
+CREATE RELATIONSHIPS:
+
+CREATE
+(a1)-[:Performs]->(s1),
+(a1)-[:Performs]->(s2),
+(a2)-[:Performs]->(s2),
+(a2)-[:Performs]->(s3),
+(s1)-[:WrittenBy]->(w1),
+(s2)-[:WrittenBy]->(w2),
+(s3)-[:WrittenBy]->(w2),
+(s1)-[:RecordedIn]->(st1),
+(s2)-[:RecordedIn]->(st2),
+(s3)-[:RecordedIn]->(st1),
+(st1)-[:ManagedBy]->(c1),
+(st2)-[:ManagedBy]->(c2),
+(c1)-[:Finances]->(s1),
+(c1)-[:Finances]->(s2),
+(c2)-[:Finances]->(s3);
+
+
+VISUALIZE:
+
+MATCH (n)-[r]->(m)
+RETURN n, r, m;
+
+
+-----------------------------------------------------------
+3. EMPLOYEE DATABASE
+-----------------------------------------------------------
+
+CREATE NODES:
+
+CREATE
+(e1:Employee {name: "Amit"}),
+(e2:Employee {name: "Sneha"}),
+(e3:Employee {name: "Rahul"}),
+(d1:Department {name: "IT"}),
+(d2:Department {name: "HR"}),
+(sk1:Skillset {name: "Python"}),
+(sk2:Skillset {name: "Java"}),
+(sk3:Skillset {name: "MongoDB"}),
+(pr1:Projects {name: "Library System", budget: 50000}),
+(pr2:Projects {name: "Employee Portal", budget: 40000});
+
+
+CREATE RELATIONSHIPS:
+
+CREATE
+(e1)-[:Works_in]->(d1),
+(e2)-[:Works_in]->(d1),
+(e3)-[:Works_in]->(d2),
+(e1)-[:Has_acquired]->(sk1),
+(e1)-[:Has_acquired]->(sk3),
+(e2)-[:Has_acquired]->(sk2),
+(e3)-[:Has_acquired]->(sk1),
+(e1)-[:Assigned_to]->(pr1),
+(e2)-[:Assigned_to]->(pr1),
+(e3)-[:Assigned_to]->(pr2),
+(pr1)-[:Controlled_by]->(d1),
+(pr2)-[:Controlled_by]->(d2),
+(e1)-[:Project_manager]->(pr1),
+(e3)-[:Project_manager]->(pr2);
+
+
+VISUALIZE:
+
+MATCH (n)-[r]->(m)
+RETURN n, r, m;
+
+
+-----------------------------------------------------------
+4. MOVIE DATABASE
+-----------------------------------------------------------
+
+CREATE NODES:
+
+CREATE
+(a1:Actor {name: "Aamir Khan"}),
+(a2:Actor {name: "Kareena Kapoor"}),
+(a3:Actor {name: "Rajkummar Rao"}),
+(m1:Movie {title: "3 Idiots", year: 2009}),
+(m2:Movie {title: "Laal Singh Chaddha", year: 2022}),
+(m3:Movie {title: "Stree", year: 2018}),
+(r1:Role {name: "Rancho"}),
+(r2:Role {name: "Rupa"}),
+(r3:Role {name: "Vicky"}),
+(p1:Producer {name: "Vidhu Vinod Chopra"}),
+(p2:Producer {name: "Aamir Khan Productions"}),
+(f1:Financier {name: "Reliance Entertainment"}),
+(d1:Director {name: "Rajkumar Hirani"}),
+(d2:Director {name: "Advait Chandan"}),
+(d3:Director {name: "Amar Kaushik"});
+
+
+CREATE RELATIONSHIPS:
+
+CREATE
+(a1)-[:ACTED_IN {role: "Rancho"}]->(m1),
+(a2)-[:ACTED_IN {role: "Rupa"}]->(m1),
+(a1)-[:ACTED_IN {role: "Laal"}]->(m2),
+(a2)-[:ACTED_IN {role: "Rupa"}]->(m2),
+(a3)-[:ACTED_IN {role: "Vicky"}]->(m3),
+(a1)-[:PLAYED]->(r1),
+(a2)-[:PLAYED]->(r2),
+(a3)-[:PLAYED]->(r3),
+(m1)-[:PRODUCED_BY]->(p1),
+(m2)-[:PRODUCED_BY]->(p2),
+(m3)-[:PRODUCED_BY]->(p2),
+(m1)-[:FINANCED_BY]->(f1),
+(m2)-[:FINANCED_BY]->(f1),
+(m1)-[:DIRECTED_BY]->(d1),
+(m2)-[:DIRECTED_BY]->(d2),
+(m3)-[:DIRECTED_BY]->(d3);
+
+
+VISUALIZE:
+
+MATCH (n)-[r]->(m)
+RETURN n, r, m;
+
+
+-----------------------------------------------------------
+5. SOCIAL NETWORK DATABASE
+-----------------------------------------------------------
+
+CREATE NODES:
+
+CREATE
+(p1:Person {name: "John", birthYear: 2000}),
+(p2:Person {name: "Tom", birthYear: 2000}),
+(p3:Person {name: "Mike", birthYear: 1999}),
+(p4:Person {name: "Sara", birthYear: 2001}),
+(a1:Affiliations {name: "SPPU"}),
+(a2:Affiliations {name: "Google"}),
+(g1:Groups {name: "Coding Club"}),
+(g2:Groups {name: "Music Club"}),
+(s1:Story {title: "My First Story"}),
+(s2:Story {title: "College Trip"}),
+(t1:Timeline {year: 2015}),
+(t2:Timeline {year: 2026}),
+(msg1:Messages {text: "Happy New Year", year: 2015}),
+(msg2:Messages {text: "Had a great day", year: 2015});
+
+
+CREATE RELATIONSHIPS:
+
+CREATE
+(p1)-[:FRIEND_OF {since: 2015}]->(p2),
+(p1)-[:FRIEND_OF {since: 2016}]->(p3),
+(p2)-[:FRIEND_OF {since: 2017}]->(p4),
+(p1)-[:AFFILIATED_TO]->(a1),
+(p1)-[:AFFILIATED_TO]->(a2),
+(p1)-[:BELONGS_TO]->(g1),
+(p1)-[:BELONGS_TO]->(g2),
+(p2)-[:BELONGS_TO]->(g1),
+(p1)-[:CREATED]->(s1),
+(p2)-[:CREATED]->(s2),
+(s1)-[:REFERS_TO]->(p2),
+(p1)-[:CREATES]->(t1),
+(p1)-[:CREATES]->(t2),
+(t1)-[:REFERENCE_FOR]->(s1),
+(t1)-[:CONTAINS]->(msg1),
+(t1)-[:CONTAINS]->(msg2);
+
+
+-----------------------------------------------------------
+GENERAL CHECK QUERIES
+-----------------------------------------------------------
+
+MATCH (n)
+RETURN n;
+
+MATCH (n)
+RETURN DISTINCT labels(n);
+
+MATCH ()-[r]->()
+RETURN DISTINCT type(r);
+
+MATCH (n)
+RETURN labels(n), properties(n);
+
+MATCH (a)-[r]->(b)
+RETURN a, type(r), properties(r), b;
+
+
+===========================================================
+ASSIGNMENT 5: SIMPLE QUERIES
+===========================================================
+
+-----------------------------------------------------------
+1. LIBRARY DATABASE
+-----------------------------------------------------------
+
+a) List all people who have issued "Harry Potter"
+
+MATCH (b:Book {title: "Harry Potter"})-[:IssuedBy]->(p:Person)
+RETURN p.name AS Person;
+
+
+b) Count the number of people who have read "Harry Potter"
+
+MATCH (b:Book {title: "Harry Potter"})-[:IssuedBy]->(p:Person)
+RETURN count(p) AS NumberOfReaders;
+
+
+c) Add "Number of books issued" for Mr. Joshi and set it as the count
+
+MATCH (p:Person {name: "Mr. Joshi"})
+OPTIONAL MATCH (b:Book)-[:IssuedBy]->(p)
+WITH p, count(b) AS count
+SET p.numberOfBooksIssued = count
+RETURN p.name AS Name, p.numberOfBooksIssued AS NumberOfBooksIssued;
+
+
+d) List names of publishers from Pune
+
+MATCH (p:Publisher {city: "Pune"})
+RETURN p.name AS Publisher;
+
+
+-----------------------------------------------------------
+2. SONG DATABASE
+-----------------------------------------------------------
+
+a) List names of songs written by "Mithoon"
+
+MATCH (s:Song)-[:WrittenBy]->(a:Song_author {name: "Mithoon"})
+RETURN s.name AS Song;
+
+
+b) List names of record companies that financed "Tum Hi Ho"
+
+MATCH (c:Recording_company)-[:Finances]->(s:Song {name: "Tum Hi Ho"})
+RETURN c.name AS RecordingCompany;
+
+
+c) List names of artists performing "Agar Tum Saath Ho"
+
+MATCH (a:Artist)-[:Performs]->(s:Song {name: "Agar Tum Saath Ho"})
+RETURN a.name AS Artist;
+
+
+d) Name songs recorded by "YRF Studio"
+
+MATCH (s:Song)-[:RecordedIn]->(st:Recording_studio {name: "YRF Studio"})
+RETURN s.name AS Song;
+
+
+-----------------------------------------------------------
+3. EMPLOYEE DATABASE
+-----------------------------------------------------------
+
+a) List names of employees in "IT"
+
+MATCH (e:Employee)-[:Works_in]->(d:Department {name: "IT"})
+RETURN e.name AS Employee;
+
+
+b) List projects and their properties controlled by "IT"
+
+MATCH (p:Projects)-[:Controlled_by]->(d:Department {name: "IT"})
+RETURN p;
+
+
+c) List departments along with count of employees
+
+MATCH (d:Department)
+OPTIONAL MATCH (e:Employee)-[:Works_in]->(d)
+RETURN d.name AS Department, count(e) AS NumberOfEmployees;
+
+
+d) List the skillset for "Amit"
+
+MATCH (e:Employee {name: "Amit"})-[:Has_acquired]->(s:Skillset)
+RETURN s.name AS Skill;
+
+
+-----------------------------------------------------------
+4. MOVIE DATABASE
+-----------------------------------------------------------
+
+a) Find all actors who acted in "3 Idiots"
+
+MATCH (a:Actor)-[:ACTED_IN]->(m:Movie {title: "3 Idiots"})
+RETURN a.name AS Actor;
+
+
+b) Reviewer-pair query
+
+NOTE:
+The Assignment 4 sample movie database above does not contain
+Reviewer or Follows relationships. Therefore this question
+cannot be correctly demonstrated using that sample data.
+
+
+c) Find actors who acted together in a movie after 2010
+
+MATCH (a1:Actor)-[:ACTED_IN]->(m:Movie)<-[:ACTED_IN]-(a2:Actor)
+WHERE a1.name < a2.name AND m.year > 2010
+RETURN a1.name AS Actor1, a2.name AS Actor2, m;
+
+
+d) Find movies produced by "Aamir Khan Productions"
+
+MATCH (m:Movie)-[:PRODUCED_BY]->(p:Producer {name: "Aamir Khan Productions"})
+RETURN m.title AS Movie;
+
+
+-----------------------------------------------------------
+5. SOCIAL NETWORK DATABASE
+-----------------------------------------------------------
+
+a) Find all friends of John with year since John knows them
+
+MATCH (j:Person {name: "John"})-[r:FRIEND_OF]->(f:Person)
+RETURN f.name AS Friend, r.since AS Since;
+
+
+b) List affiliations of John
+
+MATCH (p:Person {name: "John"})-[:AFFILIATED_TO]->(a:Affiliations)
+RETURN a.name AS Affiliation;
+
+
+c) Find friends of John born in the same year as John
+
+MATCH (j:Person {name: "John"})-[:FRIEND_OF]->(f:Person)
+WHERE f.birthYear = j.birthYear
+RETURN f.name AS Friend;
+
+
+d) List messages posted by John in his timeline during 2015
+
+MATCH (p:Person {name: "John"})-[:CREATES]->(t:Timeline {year: 2015})
+      -[:CONTAINS]->(m:Messages)
+WHERE m.year = 2015
+RETURN m.text AS Message;
+
+
+===========================================================
+ASSIGNMENT 6: COMPLEX QUERIES
+===========================================================
+
+IMPORTANT:
+The following queries use the same simple database structure.
+Where a question requires a relationship/property that was not
+present in the original Assignment 4 sample data, the required
+relationship is shown first so that the query can actually work.
+
+
+-----------------------------------------------------------
+1. LIBRARY DATABASE
+-----------------------------------------------------------
+
+a) Readers who recommended either of three books
+
+REQUIRED RELATIONSHIP:
+(:Person)-[:Recommended]->(:Book)
+
+QUERY:
+
+MATCH (p:Person)-[:Recommended]->(b:Book)
+WHERE b.title IN ["Harry Potter", "The Alchemist", "Wings of Fire"]
+RETURN DISTINCT p.name AS Reader;
+
+
+b) Readers who have not recommended any book
+
+MATCH (p:Person)
+WHERE NOT (p)-[:Recommended]->(:Book)
+RETURN p.name AS Reader;
+
+
+c) Authors who have written a book read/issued by the maximum number of readers
+
+Assumption:
+Authors are Person nodes with an "author" role.
+IssuedBy is used as the reader relationship.
+
+QUERY:
+
+MATCH (a:Person)-[:Wrote]->(b:Book)
+OPTIONAL MATCH (b)<-[:IssuedBy]-(r:Person)
+WITH a, b, count(DISTINCT r) AS readers
+WITH a, sum(readers) AS totalReaders
+WITH max(totalReaders) AS maximum, collect({author: a, readers: totalReaders}) AS data
+UNWIND data AS x
+WITH maximum, x
+WHERE x.readers = maximum
+RETURN x.author.name AS Author, x.readers AS Readers;
+
+
+d) Books recommended by a person and read by at least one reader
+
+Replace "Rahul" with the required reader/recommender name.
+
+MATCH (p:Person {name: "Rahul"})-[:Recommended]->(b:Book)
+MATCH (b)<-[:IssuedBy]-(:Person)
+RETURN DISTINCT b.title AS Book;
+
+
+e) Books recommended by a person and read by maximum number of readers
+
+Replace "Rahul" with the required person's name.
+
+MATCH (p:Person {name: "Rahul"})-[:Recommended]->(b:Book)
+OPTIONAL MATCH (b)<-[:IssuedBy]-(r:Person)
+WITH b, count(DISTINCT r) AS readers
+WITH max(readers) AS maximum, collect({book:b, readers:readers}) AS data
+UNWIND data AS x
+WITH maximum, x
+WHERE x.readers = maximum
+RETURN x.book.title AS Book, x.readers AS Readers;
+
+
+f) Publishers who have not published books written by authors from Pune and Mumbai
+
+Assumption:
+Books are connected to authors using :Wrote and authors have a city property.
+
+MATCH (p:Publisher)
+WHERE NOT EXISTS {
+    MATCH (b:Book)-[:PublishedBy]->(p)
+    MATCH (a:Person)-[:Wrote]->(b)
+    WHERE a.city IN ["Pune", "Mumbai"]
+}
+RETURN p.name AS Publisher;
+
+
+g) List voracious readers
+
+Simple definition:
+A voracious reader is a person who has issued more than one book.
+
+MATCH (p:Person)<-[:IssuedBy]-(b:Book)
+WITH p, count(b) AS books
+WHERE books > 1
+RETURN p.name AS Reader, books AS NumberOfBooks;
+
+
+-----------------------------------------------------------
+2. SONG DATABASE
+-----------------------------------------------------------
+
+a) Artists who have sung only songs written by "Mithoon"
+
+MATCH (a:Artist)-[:Performs]->(s:Song)
+OPTIONAL MATCH (s)-[:WrittenBy]->(w:Song_author)
+WITH a, collect(DISTINCT w.name) AS writers
+WHERE size(writers) = 1 AND writers[0] = "Mithoon"
+RETURN a.name AS Artist;
+
+
+b) Artists who have sung the maximum number of songs
+recorded by "YRF Studio"
+
+MATCH (a:Artist)-[:Performs]->(s:Song)-[:RecordedIn]->
+      (st:Recording_studio {name: "YRF Studio"})
+WITH a, count(DISTINCT s) AS songs
+WITH max(songs) AS maximum, collect({artist:a, songs:songs}) AS data
+UNWIND data AS x
+WITH maximum, x
+WHERE x.songs = maximum
+RETURN x.artist.name AS Artist, x.songs AS NumberOfSongs;
+
+
+c) Songs financed by "T-Series" and sung by "Arijit Singh"
+
+MATCH (c:Recording_company {name: "T-Series"})-[:Finances]->(s:Song)
+MATCH (a:Artist {name: "Arijit Singh"})-[:Performs]->(s)
+RETURN s.name AS Song;
+
+
+-----------------------------------------------------------
+3. EMPLOYEE DATABASE
+-----------------------------------------------------------
+
+a) Employees having the same skills as employee "Amit"
+
+MATCH (target:Employee {name: "Amit"})-[:Has_acquired]->(s:Skillset)
+MATCH (e:Employee)-[:Has_acquired]->(s)
+WHERE e <> target
+RETURN DISTINCT e.name AS Employee;
+
+
+b) Projects controlled by a department and having employees
+of the same department working in it
+
+MATCH (p:Projects)-[:Controlled_by]->(d:Department)
+MATCH (e:Employee)-[:Works_in]->(d)
+MATCH (e)-[:Assigned_to]->(p)
+RETURN DISTINCT p.name AS Project, d.name AS Department;
+
+
+c) Projects belonging to departments managed by employee "Amit"
+
+Assumption:
+A department is managed by an employee through :MANAGES.
+
+REQUIRED RELATIONSHIP:
+(:Employee)-[:MANAGES]->(:Department)
+
+QUERY:
+
+MATCH (e:Employee {name: "Amit"})-[:MANAGES]->(d:Department)
+MATCH (p:Projects)-[:Controlled_by]->(d)
+RETURN p.name AS Project;
+
+
+===========================================================
+PRACTICE ASSIGNMENTS - MOVIE DATABASE
+===========================================================
+
+a) Actors that paired in multiple movies together
+
+MATCH (a1:Actor)-[:ACTED_IN]->(m:Movie)<-[:ACTED_IN]-(a2:Actor)
+WHERE a1.name < a2.name
+WITH a1, a2, count(DISTINCT m) AS movies, collect(m.title) AS movieNames
+WHERE movies > 1
+RETURN a1.name AS Actor1, a2.name AS Actor2,
+       movies AS NumberOfMovies, movieNames AS Movies;
+
+
+b) All actor-movie subgraphs along with roles played
+
+MATCH (a:Actor)-[r:ACTED_IN]->(m:Movie)
+RETURN a, r, m;
+
+
+c) All reviewers and the ones they are following directly
+or through another reviewer
+
+REQUIRED RELATIONSHIPS:
+(:Reviewer)-[:FOLLOWS]->(:Reviewer)
+(:Reviewer)-[:REVIEWS]->(:Movie)
+
+Direct or one intermediary:
+
+MATCH (r1:Reviewer)-[:FOLLOWS]->(r2:Reviewer)
+OPTIONAL MATCH (r2)-[:FOLLOWS]->(r3:Reviewer)
+RETURN r1.name AS Reviewer,
+       r2.name AS DirectFollowing,
+       r3.name AS FollowingThroughAnotherReviewer;
+
+
+d) Movies with the most number of reviews
+
+MATCH (r:Reviewer)-[:REVIEWS]->(m:Movie)
+WITH m, count(r) AS reviews
+WITH max(reviews) AS maximum, collect({movie:m, reviews:reviews}) AS data
+UNWIND data AS x
+WITH maximum, x
+WHERE x.reviews = maximum
+RETURN x.movie.title AS Movie, x.reviews AS Reviews;
+
+
+===========================================================
+PRACTICE ASSIGNMENTS - SOCIAL NETWORK DATABASE
+===========================================================
+
+a) People who have created the maximum timeline messages
+
+MATCH (p:Person)-[:CREATES]->(t:Timeline)-[:CONTAINS]->(m:Messages)
+WITH p, count(m) AS messages
+WITH max(messages) AS maximum, collect({person:p, messages:messages}) AS data
+UNWIND data AS x
+WITH maximum, x
+WHERE x.messages = maximum
+RETURN x.person.name AS Person, x.messages AS Messages;
+
+
+b) All friends of John's friend Tom
+
+MATCH (john:Person {name: "John"})-[:FRIEND_OF]->(tom:Person {name: "Tom"})
+MATCH (tom)-[:FRIEND_OF]->(friend:Person)
+RETURN friend.name AS Friend;
+
+
+c) People with maximum friends
+
+MATCH (p:Person)-[:FRIEND_OF]->(f:Person)
+WITH p, count(f) AS friends
+WITH max(friends) AS maximum, collect({person:p, friends:friends}) AS data
+UNWIND data AS x
+WITH maximum, x
+WHERE x.friends = maximum
+RETURN x.person.name AS Person, x.friends AS Friends;
+
+
+d) People who are part of more than 3 groups
+
+MATCH (p:Person)-[:BELONGS_TO]->(g:Groups)
+WITH p, count(g) AS groups
+WHERE groups > 3
+RETURN p.name AS Person, groups AS NumberOfGroups;
+
+
+===========================================================
+OPTIONAL DATA NEEDED FOR COMPLEX/PRACTICE QUESTIONS
+===========================================================
+
+Some Assignment 6 and Practice questions require relationships
+that were not specified in the simple Assignment 4 sample data.
+
+You can add these relationships if you want to test those
+questions with the sample database.
+
+LIBRARY:
+
+MATCH (p:Person {name:"Rahul"}), (b:Book {title:"Harry Potter"})
+CREATE (p)-[:Recommended]->(b);
+
+MATCH (p:Person {name:"Priya"}), (b:Book {title:"The Alchemist"})
+CREATE (p)-[:Recommended]->(b);
+
+MATCH (a:Person {name:"J.K. Rowling"}), (b:Book {title:"Harry Potter"})
+CREATE (a)-[:Wrote]->(b);
+
+MATCH (a:Person {name:"Aravind Adiga"}), (b:Book {title:"The Alchemist"})
+CREATE (a)-[:Wrote]->(b);
+
+
+EMPLOYEE:
+
+MATCH (e:Employee {name:"Amit"}), (d:Department {name:"IT"})
+CREATE (e)-[:MANAGES]->(d);
+
+
+MOVIE:
+
+CREATE
+(rv1:Reviewer {name:"John"}),
+(rv2:Reviewer {name:"Mike"}),
+(rv3:Reviewer {name:"Sara"});
+
+MATCH (rv1:Reviewer {name:"John"}), (rv2:Reviewer {name:"Mike"})
+CREATE (rv1)-[:FOLLOWS]->(rv2);
+
+MATCH (rv2:Reviewer {name:"Mike"}), (rv3:Reviewer {name:"Sara"})
+CREATE (rv2)-[:FOLLOWS]->(rv3);
+
+MATCH (rv1:Reviewer {name:"John"}), (m:Movie {title:"3 Idiots"})
+CREATE (rv1)-[:REVIEWS]->(m);
+
+MATCH (rv2:Reviewer {name:"Mike"}), (m:Movie {title:"3 Idiots"})
+CREATE (rv2)-[:REVIEWS]->(m);
+
+MATCH (rv3:Reviewer {name:"Sara"}), (m:Movie {title:"Stree"})
+CREATE (rv3)-[:REVIEWS]->(m);
+
