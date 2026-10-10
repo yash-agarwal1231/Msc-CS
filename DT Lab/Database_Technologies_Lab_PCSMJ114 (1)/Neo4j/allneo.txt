@@ -1,0 +1,599 @@
+LIBRARY DATABASE
+
+(a1:Person:Author {authorId:1, name:"J. R. R.Tolkien", born:1892}), 
+(a2:Person:Author {authorId:2, name:"GeorgeOrwell", born:1903}), 
+(a3:Person:Author {authorId:3, name:"FrankHerbert", born:1920}), 
+(a4:Person:Author {authorId:4, name:"PatrickRothfuss", born:1973}), 
+(a5:Person:Author {authorId:5, name:"AndrzejSapkowski", born:1948}),
+(r1:Person:Reader {readerId:1, name:"Yash Agarwal"}),
+(r2:Person:Reader {readerId:2, name:"Lucas Trowman"}), 
+(r3:Person:Reader {readerId:3, name:"Schweiser Wilsemann"}), 
+(r4:Person:Reader {readerId:4, name:"Frey Blake"}),
+(rv1:Person:Reviewer {reviewerId:1, name:"Daniel Reed"}),
+(rv2:Person:Reviewer {reviewerId:2, name:"Emily Carter"}),
+(t1:Person:Translator {translatorId:1, name:"David French"}),
+(t2:Person:Translator {translatorId:2, name:"Anna Kowalska"}),
+(s1:Person:Supplier {supplierId:1, name:"Global Book Distributors"}), 
+(s2:Person:Supplier {supplierId:2, name:"Novel Supply House"}),
+(p1:Publisher {publisherId:1, name:"Allen & Unwin", city:"London"}), 
+(p2:Publisher {publisherId:2, name:"Secker & Warburg", city:"London"}), 
+(p3:Publisher {publisherId:3, name:"Chilton Books", city:"Philadelphia"}), 
+(p4:Publisher {publisherId:4, name:"DAW Books", city:"New York"}), 
+(p5:Publisher {publisherId:5, name:"SuperNOWA", city:"Warsaw"}),
+(b1:Book {bookId:101, title:"The Lord of the Rings", tags:["Fantasy","Adventure"], status:"Available", condition:"New", cost:1200, type:"Novel"}),
+(b2:Book {bookId:102, title:"The Hobbit", tags:["Fantasy"], status:"Issued", condition:"Old", cost:800, type:"Novel"}),
+(b3:Book {bookId:103, title:"Nineteen Eighty-Four", tags:["Dystopian","Political"],status:"Available", condition:"New", cost:600, type:"Novel"}),
+(b4:Book {bookId:104, title:"Dune",tags:["Science Fiction"], status:"Issued", condition:"New", cost:950, type:"Novel"}),
+(b5:Book {bookId:105, title:"The Name of the Wind", tags:["Fantasy"],status:"Available", condition:"New", cost:700, type:"Novel"}),
+(b6:Book {bookId:106, title:"The Witcher: Blood of Elves", tags:["Fantasy"], status:"Available", condition:"Old", cost:650, type:"Novel"}),
+
+
+(a1)-[:WROTE]->(b1), 
+(a1)-[:WROTE]->(b2), 
+(a2)-[:WROTE]->(b3),
+(a3)-[:WROTE]->(b4), 
+(a4)-[:WROTE]->(b5), 
+(a5)-[:WROTE]->(b6),
+
+(b1)-[:PublishedBy]->(p1), 
+(b2)-[:PublishedBy]->(p1),
+(b3)-[:PublishedBy]->(p2), 
+(b4)-[:PublishedBy]->(p3),
+(b5)-[:PublishedBy]->(p4), 
+(b6)-[:PublishedBy]->(p5),
+
+(s1)-[:Supplies]->(b1), 
+(s1)-[:Supplies]->(b2), 
+(s2)-[:Supplies]->(b3),
+(s2)-[:Supplies]->(b4), 
+(s1)-[:Supplies]->(b5), 
+(s2)-[:Supplies]->(b6),
+
+(r1)-[:IssuedBy {issueDate:date("2026-08-01")}]->(b2), 
+(r2)-[:IssuedBy {issueDate:date("2026-08-05")}]->(b4), 
+(r3)-[:IssuedBy {issueDate:date("2026-08-07")}]->(b1), 
+
+(r1)-[:ReturnedBy {returnDate:date("2026-08-10"), fine:0}]->(b2), 
+(r2)-[:ReturnedBy {returnDate:date("2026-08-18"), fine:50}]->(b4), 
+
+(rv1)-[:ReviewedBy {rating:5, remark:"Excellent", reviewDate:date("2026-08-15")}]->(b1),
+(rv2)-[:ReviewedBy {rating:4, remark:"Very Good", reviewDate:date("2026-08-18")}]->(b4), 
+
+(t1)-[:TranslatedBy {language:"English"}]->(b6), 
+(t2)-[:TranslatedBy {language:"Polish"}]->(b5), 
+
+(r1)-[:Votes {rating:5}]->(b1), 
+(r2)-[:Votes{rating:4}]->(b4), 
+(r3)-[:Votes {rating:5}]->(b2), 
+(r4)-[:Votes {rating:3}]->(b3);
+
+---------------------------------------------------------------------------------------------------------------
+
+SONG DATABASE
+
+CREATE 
+(ar1:Artist {artistId:1, name:"Tame Impala", country:"Australia"}),
+(ar2:Artist {artistId:2, name:"Arctic Monkeys", country:"England"}),
+(ar3:Artist {artistId:3, name:"Rodrigo Amarante", country:"Brazil"}),
+(ar4:Artist {artistId:4, name:"Little Big", country:"Russia"}),
+(ar5:Artist {artistId:5, name:"The Strokes", country:"USA"}),
+(ar6:Artist {artistId:6, name:"WIM", country:"USA"}),
+(ar7:Artist {artistId:7, name:"Bershy", country:"USA"}),
+(ar8:Artist {artistId:8, name:"Conan Gray", country:"USA"}),
+(sa1:SongAuthor {authorId:1, name:"Kevin Parker"}),
+(sa2:SongAuthor {authorId:2, name:"Alex Turner"}),
+(sa3:SongAuthor {authorId:3, name:"Rodrigo Amarante"}),
+(sa4:SongAuthor {authorId:4, name:"Ilya Prusikin"}),
+(sa5:SongAuthor {authorId:5, name:"Julian Casablancas"}),
+(sa6:SongAuthor {authorId:6, name:"WIM"}),
+(sa7:SongAuthor {authorId:7, name:"Bershy"}),
+(sa8:SongAuthor {authorId:8, name:"Conan Gray"}),
+(rc1:RecordingCompany {companyId:1, name:"Universal Music", country:"USA"}),
+(rc2:RecordingCompany {companyId:2, name:"Sony Music", country:"USA"}),
+(rc3:RecordingCompany {companyId:3, name:"Domino Recording Company", country:"UK"}),
+(rs1:RecordingStudio {studioId:1, name:"Wave House", city:"Perth"}),
+(rs2:RecordingStudio {studioId:2, name:"RAK Studios", city:"London"}),
+(rs3:RecordingStudio {studioId:3, name:"Electric Lady Studios", city:"New York"}),
+(s1:Song {songId:101, title:"Dracula", genre:"Psychedelic Rock", language:"English", duration:"4:31", releaseYear:2025}),
+(s2:Song {songId:102, title:"Loser", genre:"Psychedelic Rock", language:"English", duration:"4:10", releaseYear:2025}),
+(s3:Song {songId:103, title:"Let It Happen", genre:"Psychedelic Rock", language:"English", duration:"7:47", releaseYear:2015}),
+(s4:Song {songId:104, title:"End of Summer", genre:"Psychedelic Rock", language:"English", duration:"5:00", releaseYear:2025}),
+(s5:Song {songId:105, title:"505", genre:"Indie Rock", language:"English", duration:"4:13", releaseYear:2007}),
+(s6:Song {songId:106, title:"I Wanna Be Yours", genre:"Indie Rock", language:"English", duration:"3:04", releaseYear:2013}),
+(s7:Song {songId:107, title:"Tuyo",genre:"Latin", language:"Spanish", duration:"2:28", releaseYear:2015}),
+(s8:Song {songId:108, title:"Hypnodancer", genre:"Rave", language:"English", duration:"3:09", releaseYear:2020}),
+(s9:Song {songId:109, title:"The Adults Are Talking", genre:"Alternative Rock", language:"English",duration:"5:09", releaseYear:2020}),
+(s10:Song {songId:110, title:"Mr. Feel Good", genre:"Alternative", language:"English",duration:"3:30", releaseYear:2023}),
+(s11:Song {songId:111, title:"Weirdo", genre:"Alternative", language:"English",duration:"3:20", releaseYear:2023}),
+(s12:Song {songId:112, title:"Radio", genre:"Alternative", language:"English",duration:"3:45", releaseYear:2024}),
+(s13:Song {songId:113, title:"Maniac", genre:"Pop", language:"English", duration:"3:05", releaseYear:2019}),
+
+(ar1)-[:Performs]->(s1),
+(ar1)-[:Performs]->(s2),
+(ar1)-[:Performs]->(s3),
+(ar1)-[:Performs]->(s4),
+(ar2)-[:Performs]->(s5),
+(ar2)-[:Performs]->(s6),
+(ar3)-[:Performs]->(s7),
+(ar4)-[:Performs]->(s8),
+(ar5)-[:Performs]->(s9),
+(ar6)-[:Performs]->(s10),
+(ar6)-[:Performs]->(s11),
+(ar7)-[:Performs]->(s12),
+(ar8)-[:Performs]->(s13),
+
+(s1)-[:WrittenBy]->(sa1),
+(s2)-[:WrittenBy]->(sa1),
+(s3)-[:WrittenBy]->(sa1),
+(s4)-[:WrittenBy]->(sa1),
+(s5)-[:WrittenBy]->(sa2),
+(s6)-[:WrittenBy]->(sa2),
+(s7)-[:WrittenBy]->(sa3),
+(s8)-[:WrittenBy]->(sa4),
+(s9)-[:WrittenBy]->(sa5),
+(s10)-[:WrittenBy]->(sa6),
+(s11)-[:WrittenBy]->(sa6),
+(s12)-[:WrittenBy]->(sa7),
+(s13)-[:WrittenBy]->(sa8),
+
+(s1)-[:RecordedIn]->(rs1),
+(s2)-[:RecordedIn]->(rs1),
+(s3)-[:RecordedIn]->(rs1),
+(s4)-[:RecordedIn]->(rs1),
+(s5)-[:RecordedIn]->(rs2),
+(s6)-[:RecordedIn]->(rs2),
+(s7)-[:RecordedIn]->(rs3),
+(s8)-[:RecordedIn]->(rs3),
+(s9)-[:RecordedIn]->(rs3),
+(s10)-[:RecordedIn]->(rs3),
+(s11)-[:RecordedIn]->(rs3),
+(s12)-[:RecordedIn]->(rs3),
+(s13)-[:RecordedIn]->(rs3),
+
+(rs1)-[:ManagedBy]->(rc1),
+(rs2)-[:ManagedBy]->(rc3),
+(rs3)-[:ManagedBy]->(rc2),
+
+(rc1)-[:Finances]->(s1),
+(rc1)-[:Finances]->(s2),
+(rc1)-[:Finances]->(s3),
+(rc1)-[:Finances]->(s4),
+(rc3)-[:Finances]->(s5),
+(rc3)-[:Finances]->(s6),
+(rc2)-[:Finances]->(s7),
+(rc2)-[:Finances]->(s8),
+(rc2)-[:Finances]->(s9),
+(rc2)-[:Finances]->(s10),
+(rc2)-[:Finances]->(s11),
+(rc2)-[:Finances]->(s12),
+(rc2)-[:Finances]->(s13);
+
+-----------------------------------------------------------------------------------------------------
+
+Employee Database Setup
+
+CREATE (e1:Employee {name: 'Rohan', age: 30}),
+(e2:Employee {name: 'Sneha', age: 28}),
+(e3:Employee {name: 'Vikram', age: 40}),
+
+(d1:Department {name: 'IT', location: 'Building A'}),
+(d2:Department {name: 'Analytics', location: 'Building B'}),
+
+(sk1:Skillset {skill: 'Graph DB'}),
+(sk2:Skillset {skill: 'Python'}),
+
+(prj1:Projects {name: 'Big Data Pipeline', budget: 50000}),
+
+(e1)-[:Works_in]->(d1),
+(e2)-[:Works_in]->(d1),
+(e3)-[:Works_in]->(d2),
+(e1)-[:Has_acquired]->(sk1),
+(e2)-[:Has_acquired]->(sk1),
+(e1)-[:Has_acquired]->(sk2),
+(e1)-[:Assigned_to]->(prj1),
+(prj1)-[:Controlled_by]->(d1),
+(e3)-[:Project_manager]->(prj1);
+
+-------------------------------------------------------------------------------------------------------
+
+Movie Database Setup
+
+CREATE (m_act1:Actor {name: 'Keanu Reeves'}),
+(m_act2:Actor {name: 'Laurence Fishburne'}),
+(mov1:Movie {title: 'The Matrix Resurrections', release_year: 2021}),
+(rev1:Person:Reviewer {name: 'Alice'}),
+(rev2:Person:Reviewer {name: 'Bob'}),
+(prod1:Producer {name: 'Warner Bros'}),
+
+(m_act1)-[:ACTED_IN {role: 'Neo'}]->(mov1),
+(m_act2)-[:ACTED_IN {role: 'Morpheus'}]->(mov1),
+(rev1)-[:FOLLOWS]->(rev2),
+(rev1)-[:REVIEWED]->(mov1),
+(rev2)-[:REVIEWED]->(mov1),
+(prod1)-[:PRODUCED]->(mov1);
+
+-------------------------------------------------------------------------------------------------------
+
+Social Network Database Setup
+
+CREATE (p_john:Person {name: 'John', birth_year: 1995}),
+(p_tom:Person {name: 'Tom', birth_year: 1995}),
+(p_mike:Person {name: 'Mike', birth_year: 1996}),
+(aff1:Affiliations {name: 'IEEE'}),
+(g1:Groups {name: 'Tech Enthusiasts'}),
+(tm1:Timeline {year: 2015}),
+(msg1:Message {text: 'Hello World 2015!'}),
+
+(p_john)-[:FRIEND_OF {since: 2012}]->(p_tom),
+(p_tom)-[:FRIEND_OF {since: 2014}]->(p_mike),
+(p_john)-[:AFFILIATED_TO]->(aff1),
+(p_john)-[:BELONGS_TO]->(g1),
+(p_john)-[:CREATES]->(tm1),
+(tm1)-[:CONTAINS]->(msg1);
+
+=========================================================================================================
+
+Simple Queries - Assignment 5
+
+Library Database
+
+a) List all people who have issued a book "Dune"
+
+MATCH (p:Person)-[:IssuedBy]->(b:Book {title: 'Dune'})
+RETURN p.name AS Borrower;
+
+"Lucas Trowman"
+
+b) Count the number of people who have read "The Lord of the Rings""
+MATCH (p:Person)-[:RECOMMENDED|IssuedBy|ReviewedBy]->(b:Book {title: "The Lord of the Rings"})
+RETURN count(DISTINCT p) AS TotalReaders;
+
+2
+
+c) Add a property "Number of books issued" for Yash Agarwal and set its value as the count
+MATCH (p:Person {name: 'Yash Agarwal'})-[r:IssuedBy]->(:Book)
+WITH p, count(r) AS issueCount
+SET p.number_of_books_issued = issueCount
+RETURN p.name, p.number_of_books_issued;
+
+"Yash Agarwal"
+1
+
+d) List the names of publishers from London city
+MATCH (pub:Publisher)
+WHERE toLower(pub.city) = 'London'
+RETURN pub.name AS LondonPublishers;
+
+"Allen & Unwin"
+"Secker & Warburg"
+
+-------------------------------------------------------------------------------------------------------
+
+Complex Queries - Library Database
+
+a) Readers who recommended either book A, B, or C
+MATCH (r:Reviewer)-[:ReviewedBy]->(b:Book)
+WHERE b.title IN ['Dune', 'Our Man in Havana','The Lord od the Rings']
+RETURN DISTINCT r.name AS ReaderName;
+
+"Emily Carter"
+
+b) Readers who haven't recommended any book
+MATCH (r:Reader)
+WHERE NOT (r)-[:RECOMMENDED]->(:Book)
+RETURN r.name AS InactiveReader;
+
+"Yash Agarwal"
+"Lucas Trowman"
+"Schweiser Wilsemann"
+"Frey Blake"
+
+c) Author who wrote a book read/issued by maximum number of readers
+MATCH (a:Author)-[:WROTE]->(b:Book)<-[:IssuedBy|RECOMMENDED]-(r:Reader)
+RETURN a.name AS AuthorName, count(DISTINCT r) AS TotalReaders
+ORDER BY TotalReaders DESC LIMIT 1;
+
+"J. R. R.Tolkien"
+2
+
+d) Books reviewed by 'Daniel Reed' and read by at least one reader
+MATCH (r1:Person {name: 'Daniel Reed'})-[:ReviewedBy]->(b:Book)<-[:IssuedBy|RECOMMENDED]-(r2:Reader)
+WHERE r1 <> r2
+RETURN DISTINCT b.title AS BookTitle;
+
+"The Lord of the Rings"
+
+e) Books recommended by 'Allen & Unwin' and read by the maximum number of readers
+MATCH (r1:Publisher {name: 'Allen & Unwin'})<-[:PublishedBy]->(b:Book)-[:IssuedBy|RECOMMENDED]-(r2:Reader)
+WHERE r1 <> r2
+RETURN b.title AS BookTitle, count(DISTINCT r2) AS ReaderCount
+ORDER BY ReaderCount DESC LIMIT 1;
+
+"The Lord of the Rings"
+1
+
+f) Publishers who haven't published books written by authors from Pune and Mumbai
+MATCH (p:Publisher)
+WHERE NOT EXISTS {
+  MATCH (p)<-[:PublishedBy]-(b:Book)<-[:WROTE]-(a:Author)
+  WHERE a.city IN ['Pune', 'Mumbai']
+}
+RETURN p.name AS PublisherName;
+
+"Allen & Unwin"
+"Secker & Warburg"
+"Chilton Books"
+"DAW Books"
+"SuperNOWA"
+g) Voracious readers in our library (highest recommendations / issues)
+MATCH (r:Reader)-[:RECOMMENDED|IssuedBy]->(b:Book)
+RETURN r.name AS VoraciousReader, count(b) AS BooksHandled
+ORDER BY BooksHandled DESC LIMIT 3;
+
+========================================================================================================
+
+Simple Queries - Song Database
+
+a) List the names of songs written by "Kevin Parker"
+MATCH (s:Song)-[:WrittenBy]->(sa:SongAuthor {name: 'Kevin Parker'})
+RETURN s.title AS SongTitle;
+
+"Dracula"
+"Loser"
+"Let It Happen"
+"End of Summer"
+
+b) List the names of record companies who have financed for the song "505"
+MATCH (rc:RecordingCompany)-[:Finances]->(s:Song {title: '505'})
+RETURN rc.name AS RecordCompany;
+
+"Domino Recording Company"
+
+c) List the names of artists performing the song "Let it Happen"
+MATCH (a:Artist)-[:Performs]->(s:Song {title: 'Let It Happen'})
+RETURN a.name AS ArtistName;
+
+"Tame Impala"
+
+d) Name the songs recorded by the studio "Wave House"
+MATCH (s:Song)-[:RecordedIn]->(st:Recording_studio {name: 'Wave House'})
+RETURN s.title AS SongTitle;
+
+"Dracula"
+"Loser"
+"Let It Happen"
+"End of Summer"
+
+--------------------------------------------------------------------------------------------------------
+
+Complex Queries - Song Database
+
+a) Artists who have sung ONLY songs written by "Alex Turner"
+MATCH (art:Artist)-[:Performs]->(s:Song)-[:WrittenBy]->(sa:SongAuthor)A
+WITH art, collect(DISTINCT sa.name) AS authors
+WHERE authors = ['Alex Turner']
+RETURN art.name AS Artist;
+
+"Arctic Monkeys"
+
+b) Artists who have sung maximum songs recorded by "Electric Lady Studios"
+MATCH (art:Artist)-[:Performs]->(s:Song)-[:RecordedIn]->(st:RecordingStudio {name: 'Electric Lady Studios'})
+RETURN art.name AS Artist, count(s) AS SongCount
+ORDER BY SongCount DESC LIMIT 1;
+
+"WIM"
+2
+
+c) Songs financed by "Universal Music" and sung by "Tame Impala"
+MATCH (rc:RecordingCompany {name: 'Universal Music'})-[:Finances]->(s:Song)<-[:Performs]-(art:Artist {name: 'Tame Impala'})
+RETURN s.title AS SongTitle;
+
+"Dracula"
+"Loser"
+"Let It Happen"
+"End of Summer"
+
+=================================================================================================================================
+
+Simple Queries - Employee Database
+
+a) List the names of employees in the department "IT"
+MATCH (e:Employee)-[:Works_in]->(d:Department {name: 'IT'})
+RETURN e.name AS EmployeeName;
+
+"Rohan"
+"Sneha"
+
+b) List the projects along with their properties, controlled by department "IT"
+MATCH (p:Projects)-[:Controlled_by]->(d:Department {name: 'IT'})
+RETURN properties(p) AS ProjectDetails;
+
+{
+  name: "Big Data Pipeline",
+  budget: 50000
+}
+
+c) List the departments along with the count of employees in it
+MATCH (e:Employee)-[:Works_in]->(d:Department)
+RETURN d.name AS Department, count(e) AS EmployeeCount;
+
+"IT"		2
+"Analytics"	1
+
+d) List the skillset for an employee "Rohan"
+MATCH (e:Employee {name: 'Rohan'})-[:Has_acquired]->(s:Skillset)
+RETURN s.skill AS Skills;
+
+"GraphDB"
+"Python"
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Complex Queries on Employee Database
+
+a) Employees having the same skills as employee "Rohan"
+MATCH (e1:Employee {name: 'Rohan'})-[:Has_acquired]->(s:Skillset)<-[:Has_acquired]-(e2:Employee)
+WHERE e1 <> e2
+RETURN e2.name AS EmployeeName, collect(s.skill) AS SharedSkills;
+
+"Sneha"
+["Graph DB"]
+
+b) Projects controlled by a department and have employees of the same department working in it
+MATCH (d:Department)<-[:Controlled_by]-(p:Projects)<-[:Assigned_to]-(e:Employee)-[:Works_in]->(d)
+RETURN DISTINCT d.name AS Department, p.name AS Project;
+
+"IT"
+"Big Data Pipeline"
+
+c) Projects belonging to departments managed by employee "Vikram"
+MATCH (e:Employee {name: 'Vikram'})-[:Project_manager]->(p:Projects)-[:Controlled_by]->(d:Department)
+RETURN p.name AS ProjectName, d.name AS DepartmentName;
+
+"Big Data Pipeline"
+"IT"
+
+===================================================================================================================
+
+Simple Queries - Movie DataBase
+
+a) Find all actors who have acted in a movie "The Matrix Resurrections"
+MATCH (a:Actor)-[:ACTED_IN]->(m:Movie {title: 'The Matrix Resurrections'})
+RETURN a.name AS Actor;
+
+"Keanu Reeves"
+"Laurence Fishburne"
+
+b) Find reviewer pairs, one following the other and both reviewing the same movie
+MATCH (r1:Reviewer)-[:FOLLOWS]->(r2:Reviewer),
+      (r1)-[:REVIEWED]->(m:Movie)<-[:REVIEWED]-(r2)
+RETURN r1.name AS Reviewer1, r2.name AS Reviewer2, m.title AS Movie;
+
+"Alice"
+"Bob"
+"The Matrix Resurrections"
+
+c) Find actors that acted in a movie together after 2010
+MATCH (a1:Actor)-[:ACTED_IN]->(m:Movie)<-[:ACTED_IN]-(a2:Actor)
+WHERE a1 <> a2 AND m.release_year > 2010
+RETURN a1.name, a2.name, m.title, m.release_year;
+
+"Laurence Fishburne"
+"Keanu Reeves"
+"The Matrix Resurrections"
+2021
+
+d) Find all movies produced by "Warner Bros"
+MATCH (p:Producer {name: 'Warner Bros'})-[:PRODUCED]->(m:Movie)
+RETURN m.title AS Movie;
+
+"The Matrix Resurrections"
+
+-------------------------------------------------------------------------------------------------------------------
+
+Complex Queries - Movie Database
+
+a) Pairs of actors that paired in multiple movies together
+MATCH (a1:Actor)-[:ACTED_IN]->(m:Movie)<-[:ACTED_IN]-(a2:Actor)
+WHERE id(a1) < id(a2)
+WITH a1, a2, count(m) AS MovieCount, collect(m.title) AS Movies
+WHERE MovieCount > 1
+RETURN a1.name, a2.name, MovieCount, Movies;
+
+No changes, no records.
+
+b) Actor-movie subgraphs along with roles played
+MATCH (a:Actor)-[r:ACTED_IN]->(m:Movie)
+RETURN a.name AS Actor, r.role AS Role, m.title AS Movie;
+
+"Keanu Reeves"
+"Neo"
+"The Matrix Resurrections"
+
+"Laurence Fishburne"
+"Morpheus"
+"The Matrix Resurrections"
+
+c) Reviewers and ones they follow directly or via a third reviewer (1 to 2 hops)
+MATCH (r1:Reviewer)-[:FOLLOWS*1..2]->(r2:Reviewer)
+WHERE r1 <> r2
+RETURN DISTINCT r1.name AS Follower, r2.name AS FollowedReviewer;
+
+"Alice"
+"Bob"
+
+d) Movies that have the most number of reviews
+MATCH (m:Movie)<-[:REVIEWED]-(r:Reviewer)
+RETURN m.title AS Movie, count(r) AS ReviewCount
+ORDER BY ReviewCount DESC LIMIT 1;
+
+"The Matrix Resurrections"
+2
+
+=======================================================================================================================
+
+Simple Queries - Social Network Database
+
+a) Find all friends of "John", along with the year since when John knows them
+MATCH (p:Person {name: 'John'})-[r:FRIEND_OF]->(f:Person)
+RETURN f.name AS Friend, r.since AS KnownSince;
+
+"Tom"
+2012
+
+b) List out the affiliations of John
+MATCH (p:Person {name: 'John'})-[:AFFILIATED_TO]->(aff:Affiliations)
+RETURN aff.name AS Affiliation;
+
+"IEEE"
+
+c) Find all friends of John who are born in the same year as John
+MATCH (p:Person {name: 'John'})-[:FRIEND_OF]->(f:Person)
+WHERE p.birth_year = f.birth_year
+RETURN f.name AS FriendName, f.birth_year;
+
+"Tom"
+1995
+
+d) List out the messages posted by John in his timeline during the year 2015
+MATCH (p:Person {name: 'John'})-[:CREATES]->(t:Timeline {year: 2015})-[:CONTAINS]->(m:Message)
+RETURN m.text AS Message;
+
+"Hello World 2015!"
+
+----------------------------------------------------------------------------------------------------------------
+
+Complex Queries - Social Network Database
+
+a) People who created maximum timeline messages
+MATCH (p:Person)-[:CREATES]->(t:Timeline)-[:CONTAINS]->(m:Message)
+RETURN p.name AS Person, count(m) AS MessageCount
+ORDER BY MessageCount DESC LIMIT 1;
+
+"John"
+1
+
+b) All friends of John's friend, Tom
+MATCH (p1:Person {name: 'John'})-[:FRIEND_OF]->(p2:Person {name: 'Tom'})-[:FRIEND_OF]->(f:Person)
+WHERE f.name <> 'John'
+RETURN DISTINCT f.name AS FriendsOfTom;
+
+"Mike"
+
+c) People with maximum friends
+MATCH (p:Person)-[:FRIEND_OF]-(f:Person)
+RETURN p.name AS Person, count(DISTINCT f) AS FriendCount
+ORDER BY FriendCount DESC LIMIT 1;
+
+"Tom"
+2
+
+d) People who are part of more than 1 groups
+MATCH (p:Person)-[:BELONGS_TO]->(g:Groups)
+WITH p, count(g) AS group_count
+WHERE group_count > 1
+RETURN p.name AS Person, group_count;
+
+"John"
+1
+
