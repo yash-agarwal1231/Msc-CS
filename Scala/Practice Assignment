@@ -102,7 +102,7 @@ object Assignment4 {
     val numbers = Array(58, 27, 100, 24, -5, 2, -6)
 
     val modified = numbers.indices.map { i =>
-      numbers.drop(i + 1).find(_ > numbers(i)).getOrElse(-1)
+      numbers.drop(i + 1).maxOption.getOrElse(-1)
     }
 
     println("Original array: " + numbers.mkString(", "))
