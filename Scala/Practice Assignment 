@@ -1,0 +1,186 @@
+SCALA PROGRAMMING PRACTICE ASSIGNMENT
+=====================================
+
+Note: These are simple, lab-ready Scala programs. Save each program in a separate .scala file and run it with Scala.
+
+------------------------------------------------------------
+1. Sum values of an array using sum() and a for loop
+------------------------------------------------------------
+
+object Assignment1 {
+  def main(args: Array[String]): Unit = {
+    val numbers = Array(10, 20, 30, 40, 50)
+
+    // Method 1: Using sum()
+    println("Sum using sum(): " + numbers.sum)
+
+    // Method 2: Using a for loop
+    var total = 0
+    for (num <- numbers) {
+      total += num
+    }
+
+    println("Sum using for loop: " + total)
+  }
+}
+
+Sample output:
+Sum using sum(): 150
+Sum using for loop: 150
+
+
+------------------------------------------------------------
+2. Calculate the average of array elements (accept input)
+------------------------------------------------------------
+
+import scala.io.StdIn
+
+object Assignment2 {
+  def main(args: Array[String]): Unit = {
+    print("Enter the number of elements: ")
+    val n = StdIn.readInt()
+
+    if (n <= 0) {
+      println("Please enter a positive number of elements.")
+    } else {
+      val numbers = new Array[Int](n)
+
+      for (i <- 0 until n) {
+        print(s"Enter element ${i + 1}: ")
+        numbers(i) = StdIn.readInt()
+      }
+
+      val average = numbers.sum.toDouble / n
+      println("Average: " + average)
+    }
+  }
+}
+
+Sample run:
+Enter the number of elements: 4
+Enter element 1: 10
+Enter element 2: 20
+Enter element 3: 30
+Enter element 4: 40
+Average: 25.0
+
+
+------------------------------------------------------------
+3. Sum of the last 3 elements of an array
+------------------------------------------------------------
+
+object Assignment3 {
+  def main(args: Array[String]): Unit = {
+    val numbers = Array(10, 20, 30, 40, 50)
+
+    val result =
+      if (numbers.isEmpty) 0
+      else if (numbers.length < 3) numbers.sum
+      else numbers.takeRight(3).sum
+
+    println("Array: " + numbers.mkString(", "))
+    println("Result: " + result)
+  }
+}
+
+Sample output:
+Array: 10, 20, 30, 40, 50
+Result: 120
+
+Explanation of the conditions:
+- Empty array: returns 0.
+- Fewer than 3 elements: returns the sum of the whole array.
+- 3 or more elements: returns the sum of the last 3 elements.
+
+
+------------------------------------------------------------
+4. Replace each element with the next greater element on its right
+------------------------------------------------------------
+
+object Assignment4 {
+  def main(args: Array[String]): Unit = {
+    val numbers = Array(58, 27, 100, 24, -5, 2, -6)
+
+    val modified = numbers.indices.map { i =>
+      numbers.drop(i + 1).find(_ > numbers(i)).getOrElse(-1)
+    }
+
+    println("Original array: " + numbers.mkString(", "))
+    println("Modified array: " + modified.mkString(", "))
+  }
+}
+
+Sample output (following the wording "first greater element to the right"):
+Original array: 58, 27, 100, 24, -5, 2, -6
+Modified array: 100, 100, -1, -1, 2, -1, -1
+
+Important note:
+The sample output printed in the question image appears inconsistent with the wording.
+This program uses the standard interpretation: for each element, find the first element
+to its right that is strictly greater; if none exists, use -1.
+
+
+------------------------------------------------------------
+5. Check whether a list is a palindrome
+------------------------------------------------------------
+
+object Assignment5 {
+  def main(args: Array[String]): Unit = {
+    val values = List(1, 2, 3, 2, 1)
+
+    if (values == values.reverse) {
+      println("The list is a palindrome.")
+    } else {
+      println("The list is not a palindrome.")
+    }
+  }
+}
+
+Sample output:
+The list is a palindrome.
+
+
+------------------------------------------------------------
+6. Count occurrences of each element in a list
+------------------------------------------------------------
+
+object Assignment6 {
+  def main(args: Array[String]): Unit = {
+    val values = List(1, 2, 2, 3, 1, 2, 4, 3)
+
+    val counts = values.groupBy(identity).map {
+      case (value, occurrences) => value -> occurrences.size
+    }
+
+    println("List: " + values.mkString(", "))
+    println("Occurrences: " + counts)
+  }
+}
+
+Sample output (map order may vary):
+List: 1, 2, 2, 3, 1, 2, 4, 3
+Occurrences: Map(1 -> 2, 2 -> 3, 3 -> 2, 4 -> 1)
+
+
+------------------------------------------------------------
+7. Create a map and find keys with the maximum value
+------------------------------------------------------------
+
+object Assignment7 {
+  def main(args: Array[String]): Unit = {
+    val values = Map("Red" -> 1, "Green" -> 4, "Blue" -> 3, "Orange" -> 4)
+
+    val maxValue = values.values.max
+    val keys = values.filter { case (_, value) => value == maxValue }.keySet
+
+    println("Original map: " + values)
+    println("Maximum value: " + maxValue)
+    println("Keys with maximum value: " + keys)
+  }
+}
+
+Sample output:
+Original map: Map(Red -> 1, Green -> 4, Blue -> 3, Orange -> 4)
+Maximum value: 4
+Keys with maximum value: Set(Green, Orange)
+
