@@ -1,0 +1,487 @@
+Q1. Write a C program that demonstrates the use of buffer blocks, use fixed-size buffers to store,
+    display and clear the buffer block. Display cleared buffer block.
+
+#include <stdio.h>
+#include <string.h>
+
+int main()
+{
+    char buffer[20] = "Operating System";
+
+    printf("Buffer block: %s\n", buffer);
+
+    memset(buffer, 0, sizeof(buffer));
+
+    printf("Cleared buffer block: %s\n", buffer);
+
+    return 0;
+}
+___________________________________________________________________________________________________________________________________
+
+Q2. Write a C program where a parent process controls a child process using signals: SIGSTOP
+    (suspend), SIGCONT (resume), and SIGTERM (terminate). The parent takes user input(‘s’,’r’&’q’)
+    to send the respective signals, handles invalid inputs, and ensures proper child termination.
+
+#include <stdio.h>
+#include <unistd.h>
+#include <signal.h>
+#include <sys/wait.h>
+
+int main()
+{
+    int pid;
+    char ch;
+
+    pid = fork();
+
+    if (pid == 0)
+    {
+        while (1)
+        {
+            printf("Child process running\n");
+            sleep(2);
+        }
+    }
+    else if (pid > 0)
+    {
+        while (1)
+        {
+            printf("\ns: Suspend  r: Resume  q: Quit\n");
+            printf("Enter choice: ");
+            scanf(" %c", &ch);
+
+            if (ch == 's')
+                kill(pid, SIGSTOP);
+            else if (ch == 'r')
+                kill(pid, SIGCONT);
+            else if (ch == 'q')
+            {
+                kill(pid, SIGTERM);
+                wait(NULL);
+                printf("Child terminated\n");
+                break;
+            }
+            else
+                printf("Invalid choice\n");
+        }
+    }
+    else
+        printf("Fork failed\n");
+
+    return 0;
+}
+___________________________________________________________________________________________________________________________________
+
+Q3. Write a C program to demonstrate suspending and resuming a process using signals (SIGTSTP
+    and SIGCONT). The program should handle these signals and manage the execution state of
+    process effectively.
+
+#include <stdio.h>
+#include <unistd.h>
+#include <signal.h>
+#include <sys/wait.h>
+
+int main()
+{
+    int pid;
+
+    pid = fork();
+
+    if (pid == 0)
+    {
+        while (1)
+        {
+            printf("Child process running\n");
+            sleep(2);
+        }
+    }
+    else if (pid > 0)
+    {
+        sleep(5);
+
+        printf("Suspending child process\n");
+        kill(pid, SIGTSTP);
+        sleep(5);
+
+        printf("Resuming child process\n");
+        kill(pid, SIGCONT);
+        sleep(5);
+
+        printf("Terminating child process\n");
+        kill(pid, SIGTERM);
+
+        wait(NULL);
+    }
+    else
+        printf("Fork failed\n");
+
+    return 0;
+}
+___________________________________________________________________________________________________________________________________
+
+Q4. Write an interactive C program to demonstrate the use of dynamic memory allocation functions.
+    The program should handle memory allocation, reallocation, and de-allocation.
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    int *p, n, i, ch;
+
+    p = NULL;
+    n = 0;
+
+    do
+    {
+        printf("\n1. Allocate");
+        printf("\n2. Display");
+        printf("\n3. Reallocate");
+        printf("\n4. Free memory");
+        printf("\n5. Exit");
+        printf("\nEnter choice: ");
+        scanf("%d", &ch);
+
+        if (ch == 1)
+        {
+            if (p != NULL)
+            {
+                printf("Memory already allocated\n");
+                continue;
+            }
+
+            printf("Enter size: ");
+            scanf("%d", &n);
+
+            if (n <= 0)
+            {
+                printf("Invalid size\n");
+                n = 0;
+                continue;
+            }
+
+            p = (int *)malloc(n * sizeof(int));
+
+            if (p == NULL)
+            {
+                printf("Allocation failed\n");
+                n = 0;
+                continue;
+            }
+
+            for (i = 0; i < n; i++)
+            {
+                printf("Enter element: ");
+                scanf("%d", &p[i]);
+            }
+        }
+        else if (ch == 2)
+        {
+            if (p == NULL)
+                printf("Memory not allocated\n");
+            else
+                for (i = 0; i < n; i++)
+                    printf("%d ", p[i]);
+        }
+        else if (ch == 3)
+        {
+            if (p == NULL)
+            {
+                printf("Allocate memory first\n");
+                continue;
+            }
+
+            printf("Enter new size: ");
+            scanf("%d", &i);
+
+            if (i <= 0)
+            {
+                printf("Invalid size\n");
+                continue;
+            }
+
+            {
+                int *temp = realloc(p, i * sizeof(int));
+
+                if (temp == NULL)
+                    printf("Reallocation failed\n");
+                else
+                {
+                    p = temp;
+                    n = i;
+                    printf("Memory reallocated\n");
+                }
+            }
+        }
+        else if (ch == 4)
+        {
+            free(p);
+            p = NULL;
+            n = 0;
+            printf("Memory freed\n");
+        }
+        else if (ch != 5)
+            printf("Invalid choice\n");
+
+    } while (ch != 5);
+
+    free(p);
+    return 0;
+}
+___________________________________________________________________________________________________________________________________
+
+Q5. Write a C program that lists all files in the current directory, allows the user to create a file with
+    specified content, reads and displays the file&#39;s content, and ensures proper handling of file
+    operations.
+
+#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <dirent.h>
+
+int main()
+{
+    DIR *dir;
+    struct dirent *entry;
+    int fd, n;
+    char name[100], content[200], buffer[200];
+
+    dir = opendir(".");
+
+    if (dir == NULL)
+    {
+        printf("Cannot open directory\n");
+        return 1;
+    }
+
+    printf("Files in current directory:\n");
+
+    while ((entry = readdir(dir)) != NULL)
+        printf("%s\n", entry->d_name);
+
+    closedir(dir);
+
+    printf("Enter filename: ");
+    scanf("%99s", name);
+
+    fd = open(name, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+
+    if (fd == -1)
+    {
+        printf("Cannot create file\n");
+        return 1;
+    }
+
+    printf("Enter content (one line): ");
+    getchar();
+
+    if (fgets(content, sizeof(content), stdin) == NULL)
+    {
+        close(fd);
+        return 1;
+    }
+
+    write(fd, content, strlen(content));
+    close(fd);
+
+    fd = open(name, O_RDONLY);
+
+    if (fd == -1)
+    {
+        printf("Cannot read file\n");
+        return 1;
+    }
+
+    n = read(fd, buffer, sizeof(buffer) - 1);
+
+    if (n >= 0)
+    {
+        buffer[n] = '\0';
+        printf("File content: %s", buffer);
+    }
+
+    close(fd);
+    return 0;
+}
+___________________________________________________________________________________________________________________________________
+
+Q6. Write a C program to demonstrate the use of atexit() by registering three exit functions,
+    ensuring they execute in reverse order of registration. The first exit function should free
+    dynamically allocated memory with a null check condition, while the others display appropriate
+    messages.
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int *p;
+
+void fun1()
+{
+    if (p != NULL)
+    {
+        free(p);
+        p = NULL;
+        printf("Memory freed\n");
+    }
+    else
+        printf("Memory is NULL\n");
+}
+
+void fun2()
+{
+    printf("Second exit function executed\n");
+}
+
+void fun3()
+{
+    printf("Third exit function executed\n");
+}
+
+int main()
+{
+    p = (int *)malloc(5 * sizeof(int));
+
+    if (p == NULL)
+    {
+        printf("Memory allocation failed\n");
+        return 1;
+    }
+
+    atexit(fun1);
+    atexit(fun2);
+    atexit(fun3);
+
+    printf("Main function completed\n");
+
+    return 0;
+}
+
+___________________________________________________________________________________________________________________________________
+
+Q7. Write a C program that lists all files in the current directory, allows the user to create a file with
+    specified content, reads and displays the file’s content.
+
+#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <string.h>
+
+int main()
+{
+    int fd, n;
+    char name[100], content[200], buffer[200];
+
+    printf("Enter filename: ");
+    scanf("%99s", name);
+
+    fd = open(name, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+
+    if (fd == -1)
+    {
+        printf("File creation failed\n");
+        return 1;
+    }
+
+    printf("Enter content: ");
+    getchar();
+
+    if (fgets(content, sizeof(content), stdin) == NULL)
+    {
+        close(fd);
+        return 1;
+    }
+
+    write(fd, content, strlen(content));
+    close(fd);
+
+    fd = open(name, O_RDONLY);
+
+    if (fd == -1)
+    {
+        printf("File opening failed\n");
+        return 1;
+    }
+
+    n = read(fd, buffer, sizeof(buffer) - 1);
+
+    if (n >= 0)
+    {
+        buffer[n] = '\0';
+        printf("File content:\n%s", buffer);
+    }
+
+    close(fd);
+    return 0;
+}
+___________________________________________________________________________________________________________________________________
+
+Q8. Write a C program to read the current directory and display names, size, and type of the file.
+    Display total number of files in the current directory. Also create a file with a hole in the current
+    directory.
+
+#include <stdio.h>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+int main()
+{
+    DIR *dir;
+    struct dirent *entry;
+    struct stat file;
+    int fd, count = 0;
+
+    dir = opendir(".");
+
+    if (dir == NULL)
+    {
+        printf("Cannot open directory\n");
+        return 1;
+    }
+
+    printf("Name\t\tSize\tType\n");
+
+    while ((entry = readdir(dir)) != NULL)
+    {
+        if (stat(entry->d_name, &file) == -1)
+            continue;
+
+        printf("%s\t%ld\t", entry->d_name, (long)file.st_size);
+
+        if (S_ISREG(file.st_mode))
+            printf("Regular file\n");
+        else if (S_ISDIR(file.st_mode))
+            printf("Directory\n");
+        else
+            printf("Other\n");
+
+        count++;
+    }
+
+    closedir(dir);
+
+    printf("Total entries: %d\n", count);
+
+    fd = open("hole.txt",
+              O_WRONLY | O_CREAT | O_TRUNC, 0644);
+
+    if (fd == -1)
+    {
+        printf("Cannot create hole file\n");
+        return 1;
+    }
+
+    write(fd, "Hello", 5);
+
+    lseek(fd, 5, SEEK_CUR);
+
+    write(fd, "World", 5);
+
+    close(fd);
+
+    printf("File with hole created successfully\n");
+
+    return 0;
+}
